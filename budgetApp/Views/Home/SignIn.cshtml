@@ -1,0 +1,6 @@
+﻿<p style="color:red;">@ViewBag.SignInMessage</p>
+@using (Html.BeginForm(FormMethod.Post)){
+<p>Username: @Html.TextBox("username")</p>
+<p>Password: @Html.TextBox("password")</p>
+<button type="submit" class="btn btn-outline-success btn-lg">Sign In</button>
+}

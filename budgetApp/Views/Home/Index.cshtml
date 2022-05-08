@@ -1,0 +1,51 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    List<SelectListItem> categories = new List<SelectListItem>();
+            /* add our caegories into the list of ListItem */
+            categories.Add(new SelectListItem
+            {
+                Text = "Need",
+                Value = "0"
+            });
+            categories.Add(new SelectListItem
+            {
+                Text = "Want",
+                Value = "1"
+            });
+            categories.Add(new SelectListItem
+            {
+                Text = "Saving/Invest",
+                Value = "2"
+            });
+}
+
+@model budgetApp.Models.EntryModel
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+</div>
+
+@using (Html.BeginForm(FormMethod.Post))
+{
+    <div>
+        <table class="table">
+            <tr>
+                <th scope="col">Amount($)</th>
+                <th scope="col">@Html.TextBoxFor(x=>x.amount, new {@style = "width: 200px;", @type="number", @min="0", @value="0"})</th>
+            </tr>
+            <tr>
+                <th scope="col">Category</th>
+                <th scope="col">@Html.DropDownListFor(x=>x.category, categories, new {@style = "width: 200px;"})</th>
+            </tr>
+            <tr>
+                <th scope="col">Sub Category(optional)</th>
+                <th scope="col">@Html.TextBoxFor(x=>x.subCategory, new {@style = "width: 200px;"})</th>
+            </tr>
+            <tr>
+                <th scope="col">Description(Optional)</th>
+                <th scope="col">@Html.TextAreaFor(x=>x.description, new {@style = "heigth: 80px; width: 200px;"})</th>
+            </tr>        
+        </table>
+        <button type="submit" class="btn btn-outline-success btn-lg">Submit</button>
+    </div>
+}
