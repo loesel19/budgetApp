@@ -19,7 +19,7 @@ namespace budgetApp.Controllers
             if (String.IsNullOrEmpty(GlobalVariables.GlobalUsername))
             {
                 /* no user signed in so we want to redirect user to signin page*/
-                return RedirectToAction("SignIn", true);
+                return RedirectToAction("SignIn");
             }
             else
             {
@@ -31,8 +31,22 @@ namespace budgetApp.Controllers
         [HttpPost]
         public IActionResult Index([FromForm] EntryModel model)
         {
+            /* we want to try to post the entry to our database */
+            //first make a sql string
+            string sqlCommand = String.Format("INSERT INTO Entrys columns(amount, category, description, userID) values({0}, {1}, {2}, {3})",
+                "'" + model.amount + "'", "'" + model.category + "'", "'" + model.description + "'", "'" + GlobalVariables.UserID + "'");
+            if (clsDatabase.ExecuteSQLNonQuery(sqlCommand))
+            {
+                /* we were able to add the entry to our database */
+                ViewBag.Message = "Successfully added entry.";
+            }
+            else
+            {
+                ViewBag.Message = "Something went wrong, entry not posted.";
 
-            return RedirectToAction("");
+            }
+            /* after posting we just return the index view */
+            return View();
         }
 
         public IActionResult Privacy()
@@ -46,14 +60,11 @@ namespace budgetApp.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
         [HttpGet]
-        public IActionResult SignIn(Boolean firstAccess)
+        public IActionResult SignIn()
         {
             /* if global user name value is not populated we return the signing page
              * otherwise we redirect to the index page. */
-            if (firstAccess)
-            {
-                ViewBag.SignInMessage = "username or password (br both) incorrect.";
-            }
+           
             if(String.IsNullOrEmpty(GlobalVariables.GlobalUsername))
                 return View();
             else

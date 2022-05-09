@@ -22,7 +22,7 @@
 @model budgetApp.Models.EntryModel
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
+    <h1 class="display-4">@ViewBag.Message</h1>
 </div>
 
 @using (Html.BeginForm(FormMethod.Post))
