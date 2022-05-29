@@ -1,21 +1,26 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
     List<SelectListItem> categories = new List<SelectListItem>();
-            /* add our caegories into the list of ListItem */
-            categories.Add(new SelectListItem
+    /* add our caegories into the list of ListItem */
+    categories.Add(new SelectListItem
             {
                 Text = "Need",
-                Value = "0"
+                Value = "Need"
             });
-            categories.Add(new SelectListItem
+    categories.Add(new SelectListItem
             {
                 Text = "Want",
-                Value = "1"
+                Value = "Want"
             });
-            categories.Add(new SelectListItem
+    categories.Add(new SelectListItem
             {
                 Text = "Saving/Invest",
-                Value = "2"
+                Value = "Saving/Invest"
+            });
+    categories.Add(new SelectListItem
+            {
+                Text = "Income",
+                Value = "Income"
             });
 }
 
@@ -25,27 +30,46 @@
     <h1 class="display-4">@ViewBag.Message</h1>
 </div>
 
-@using (Html.BeginForm(FormMethod.Post))
-{
+
+
+    <form asp-controller="Home" method="post" id="entryForm" role="form" onsubmit="return checkFields()">
     <div>
         <table class="table">
             <tr>
                 <th scope="col">Amount($)</th>
-                <th scope="col">@Html.TextBoxFor(x=>x.amount, new {@style = "width: 200px;", @type="number", @min="0", @value="0"})</th>
+                <th scope="col">@Html.TextBoxFor(x=>x.amount, new {@style = "width: 200px;",@id="txtAmt", @type="number", @min="0.01", @value="0"})</th>
             </tr>
             <tr>
                 <th scope="col">Category</th>
-                <th scope="col">@Html.DropDownListFor(x=>x.category, categories, new {@style = "width: 200px;"})</th>
+                <th scope="col">@Html.DropDownListFor(x=>x.category, categories, new {@style = "width: 200px;", @id="ddlCat"})</th>
             </tr>
             <tr>
                 <th scope="col">Sub Category(optional)</th>
-                <th scope="col">@Html.TextBoxFor(x=>x.subCategory, new {@style = "width: 200px;"})</th>
+                <th scope="col">@Html.TextBoxFor(x=>x.subCategory, new {@style = "width: 200px;", @id="txtSub"})</th>
             </tr>
             <tr>
                 <th scope="col">Description(Optional)</th>
-                <th scope="col">@Html.TextAreaFor(x=>x.description, new {@style = "heigth: 80px; width: 200px;"})</th>
+                <th scope="col">@Html.TextAreaFor(x=>x.description, new {@style = "heigth: 80px; width: 200px;", @id="txtDesc"})</th>
             </tr>        
         </table>
         <button type="submit" class="btn btn-outline-success btn-lg">Submit</button>
     </div>
-}
+    </form>
+
+<script>
+//make sure that all required fields have a value before sending them back
+    
+    function checkFields(){
+        
+        if(document.getElementById("txtAmt").value <= 0){
+            alert("Must enter an amount.");
+            return false;
+        }
+        
+        if(document.getElementById("ddlCat").value == null || document.getElementById("ddlCat").value == ""){
+            alert("Must select a category.")
+            return false
+        }
+        return true;
+    }
+</script>

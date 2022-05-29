@@ -1,14 +1,18 @@
 ﻿using System.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using Npgsql;
 namespace budgetApp
 {
-    public class clsDatabase
-    {
-
-
-        public static Boolean ExecuteSQLNonQuery(String strSQL)
+    public static class clsDatabase
+    { 
+       
+        public static Boolean ExecuteSQLNonQuery(string strSQL, string connString)
         {
-            SqlConnection conn = null;
-            SqlCommand cmd = new SqlCommand();
+            //get connection to server
+            
+            NpgsqlConnection conn = new NpgsqlConnection(connString);
+            NpgsqlCommand cmd = new NpgsqlCommand(strSQL, conn);
             try
             {
                 conn.Open();
@@ -17,7 +21,6 @@ namespace budgetApp
             {
                 return false;
             }
-            cmd.CommandText = strSQL;
             try
             {
                 cmd.ExecuteNonQuery();

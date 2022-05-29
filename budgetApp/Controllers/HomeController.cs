@@ -1,16 +1,17 @@
 ﻿using budgetApp.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System.Diagnostics;
 
 namespace budgetApp.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        //add our config
+        private readonly IConfiguration config;
+        public HomeController(IConfiguration config)
         {
-            _logger = logger;
+            this.config = config;
         }
         [HttpGet]
         public IActionResult Index()
@@ -33,9 +34,18 @@ namespace budgetApp.Controllers
         {
             /* we want to try to post the entry to our database */
             //first make a sql string
-            string sqlCommand = String.Format("INSERT INTO Entrys columns(amount, category, description, userID) values({0}, {1}, {2}, {3})",
-                "'" + model.amount + "'", "'" + model.category + "'", "'" + model.description + "'", "'" + GlobalVariables.UserID + "'");
-            if (clsDatabase.ExecuteSQLNonQuery(sqlCommand))
+            if (String.IsNullOrEmpty(model.subCategory))
+            {
+                model.subCategory = "";
+            }
+            if (String.IsNullOrEmpty(model.description))
+            {
+                model.description = "";
+            }
+            string sqlCommand = String.Format("INSERT INTO entrys (amount, category, subcategory, description, userID, createdtime) values({0}, {1}, {4}, {2}, {3}, {5});",
+                "'" + model.amount + "'", "'" + model.category + "'", "'" + model.description + "'", "'" + GlobalVariables.UserID + "'", "'" + model.subCategory + "'", 
+                "'" + DateTime.Now + "'");
+            if (clsDatabase.ExecuteSQLNonQuery(sqlCommand, config.GetValue<string>("DBConnString")))
             {
                 /* we were able to add the entry to our database */
                 ViewBag.Message = "Successfully added entry.";
