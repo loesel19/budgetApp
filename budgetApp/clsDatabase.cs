@@ -33,5 +33,18 @@ namespace budgetApp
                 return false;
             }
         }
+        public static NpgsqlDataReader ExecuteDataReader(string strSQL, string connString)
+        {
+            NpgsqlConnection conn = new NpgsqlConnection(connString);
+            NpgsqlCommand cmd = new NpgsqlCommand(strSQL, conn);
+            try
+            {
+                conn.Open();
+                return cmd.ExecuteReader();
+            }catch(Exception ex)
+            {
+                return null;
+            }
+        }
     }
 }

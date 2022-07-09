@@ -37,7 +37,7 @@
         <table class="table">
             <tr>
                 <th scope="col">Amount($)</th>
-                <th scope="col">@Html.TextBoxFor(x=>x.amount, new {@style = "width: 200px;",@id="txtAmt", @type="number", @min="0.01", @value="0"})</th>
+                <th scope="col">@Html.TextBoxFor(x=>x.amount, new {@style = "width: 200px;",@id="txtAmt", @type="number", @min="0.01",@step="0.01", @value="0"})</th>
             </tr>
             <tr>
                 <th scope="col">Category</th>
@@ -55,6 +55,9 @@
         <button type="submit" class="btn btn-outline-success btn-lg">Submit</button>
     </div>
     </form>
+    <div>
+        @Html.ActionLink("View Reports", "Report", new {@class="btn btn-outline-secondary btn-lg", @style="font-size: 55;"})
+    </div>
 
 <script>
 //make sure that all required fields have a value before sending them back

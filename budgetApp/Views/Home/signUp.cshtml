@@ -1,0 +1,26 @@
+﻿
+@model budgetApp.Models.UserModel
+<h1>Please Sign Up</h1>
+<h2>@ViewBag.Msg</h2>
+<form asp-controller="Home" method="post" id="signUpForm" role="form" onsubmit="return checkFields()">
+    <p>username</p> @Html.TextBoxFor(x=> x.username, new {@id = "txtUsername"})
+    <p>password</p> @Html.TextBoxFor(x=> x.password, new {@id = "txtPassword"})
+    <button type="submit" class="btn btn-outline-secondary">Sign Up</button>
+</form>
+<h3>Note: I reccomend not using other accounts username/password, this site is not super secure!</h3>
+<script>
+    function checkFields(){
+        if(document.getElementById("txtUsername").value.length > 2){
+            if(document.getElementById("txtPassword").value.length > 7){
+                alert("all good")
+                return true;
+            }else{
+                alert("Password must be at least 8 characters long.")
+                return false;
+            }
+        }else{
+            alert("Username must be at least 3 characters long.");
+            return false;
+        }
+    }
+</script>

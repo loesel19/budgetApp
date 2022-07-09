@@ -1,6 +1,26 @@
-﻿<p style="color:red;">@ViewBag.SignInMessage</p>
-@using (Html.BeginForm(FormMethod.Post)){
-<p>Username: @Html.TextBox("username")</p>
-<p>Password: @Html.TextBox("password")</p>
+﻿
+@model budgetApp.Models.UserModel
+
+<h2 style="color:red;">@ViewBag.Msg</h2>
+<form asp-controller="Home" method="post" id="signUpForm" role="form" onsubmit="return checkFields()">
+<p>Username: @Html.TextBoxFor(x=>x.username, new {@id="txtUsername"})</p>
+<p>Password: @Html.TextBoxFor(x=>x.password, new {@id="txtPassword"})</p>
 <button type="submit" class="btn btn-outline-success btn-lg">Sign In</button>
-}
+</form>
+@Html.ActionLink("Sing Up", "signUp")
+
+<script>
+function checkFields(){
+        if(document.getElementById("txtUsername").value.length > 2){
+            if(document.getElementById("txtPassword").value.length > 7)
+                return true;
+            }else{
+                alert("Password cannot be empty.")
+                return false;
+            }
+        }else{
+            alert("Username cannot be empty.");
+            return false;
+        }
+    }
+</script>
