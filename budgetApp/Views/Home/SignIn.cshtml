@@ -2,20 +2,21 @@
 @model budgetApp.Models.UserModel
 
 <h2 style="color:red;">@ViewBag.Msg</h2>
-<form asp-controller="Home" method="post" id="signUpForm" role="form" onsubmit="return checkFields()">
+<form asp-controller="Home" method="post" id="signUpForm" role="form">
 <p>Username: @Html.TextBoxFor(x=>x.username, new {@id="txtUsername"})</p>
 <p>Password: @Html.TextBoxFor(x=>x.password, new {@id="txtPassword"})</p>
-<button type="submit" class="btn btn-outline-success btn-lg">Sign In</button>
+<button type="button" onclick="preSubmitCheck()" class="btn btn-outline-success btn-lg">Sign In</button>
+<p>Stay Signed in <input type="checkbox" id="chkRemember" /></p>
 </form>
 @Html.ActionLink("Sing Up", "signUp")
 
 <script>
 function checkFields(){
         if(document.getElementById("txtUsername").value.length > 2){
-            if(document.getElementById("txtPassword").value.length > 7)
+            if(document.getElementById("txtPassword").value.length > 7){
                 return true;
             }else{
-                alert("Password cannot be empty.")
+                alert("Password cannot be empty.");
                 return false;
             }
         }else{
@@ -23,4 +24,21 @@ function checkFields(){
             return false;
         }
     }
+function preSubmitCheck(){
+   
+    if(checkFields()){
+        
+        if(document.getElementById("chkRemember").checked){
+            const d = new Date();
+            d.setTime(d.getTime() + 2592000);
+            document.cookie = "username=" + document.getElementById("txtUsername").value + ";expires=" + d.toUTCString + ";path=/"
+            alert("You will stay signed in for the next 30 days.")
+        }
+        //submit the form
+        document.getElementById("signUpForm").submit();
+        return true;
+    }else{
+        return false;
+    }
+}
 </script>

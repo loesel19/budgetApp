@@ -1,10 +1,14 @@
 ﻿@model budgetApp.Models.ReportModel
-
+<head>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
 <h2>@ViewBag.Msg</h2>
 <form asp-controller="Home" method="post" id="reportForm" role="form">
     @Html.DropDownListFor(x => x.category, Model.categories)
     @Html.DropDownListFor(x => x.period, Model.periods)
     <button type="submit" class="btn btn-outline-primary">View</button>
 </form>
-
 @Html.Raw(Model.strHTML)
+@Html.Raw(Model.strHTMLTable)
+</body>

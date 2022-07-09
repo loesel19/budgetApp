@@ -5,12 +5,14 @@ namespace budgetApp.Models
     public class ReportModel
     {
         public string strHTML { get; set; }
+        public string strHTMLTable { get; set; }
         public string category { get; set; }
         public string period { get; set; }
         public List<SelectListItem> categories { get; set; }
         public List<SelectListItem> periods { get; set; }
         public ReportModel()
         {
+            strHTMLTable = "";
             strHTML = "";
             categories = new List<SelectListItem>();
             categories.Add(new SelectListItem
@@ -35,12 +37,18 @@ namespace budgetApp.Models
             });
             categories.Add(new SelectListItem
             {
-                Text = "All Expenses",
+                Text = "All",
                 Value = "All",
                 Selected = true
             });
             /* for periods we will make the values of the select items the amount of days */
             periods = new List<SelectListItem>();
+            periods.Add(new SelectListItem
+            {
+                Text = "Today",
+                Value = "1",
+                Selected = true
+            });
             periods.Add(new SelectListItem
             {
                 Text = "1 week",

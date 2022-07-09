@@ -21,8 +21,18 @@ namespace budgetApp.Controllers
             /* check if the username is populated to ensure that user is signed in */
             if (String.IsNullOrEmpty(GlobalVariables.GlobalUsername))
             {
-                /* no user signed in so we want to redirect user to signin page*/
-                return RedirectToAction("SignIn");
+                try
+                {
+                    string username = Request.Cookies["username"].ToString();
+                    /* user was previously signed in and wanted to be remembered, so we can sign them back in */
+                    GlobalVariables.GlobalUsername = username;
+                    return View();
+                }catch(Exception ex)
+                {
+                    /* no user signed in so we want to redirect user to signin page*/
+                    return RedirectToAction("SignIn");
+                }
+                
             }
             else
             {
@@ -110,32 +120,56 @@ namespace budgetApp.Controllers
                 case "All":
                     break;
                 default:
-                    sbSQL.Append(" AND CreatedTime < '" + DateTime.Now.ToString() + "-" + model.period + "'");
+                    sbSQL.Append(" AND CreatedTime > '" + DateTime.Now.ToString() + "-" + model.period + "'");
                     break;
             }
             sbSQL.Append(";");
             NpgsqlDataReader sdr = clsDatabase.ExecuteDataReader(sbSQL.ToString(), config.GetValue<string>("DBConnString"));
             /* lets start building our table, put in the headers first. Space them nicely as well */
-            StringBuilder strTable = new StringBuilder("<table>");
+            StringBuilder strTable = new StringBuilder("<table class=\"table\">");
             strTable.AppendLine("   <tr>");
-            strTable.AppendLine("       <th>Amount</th>");
-            strTable.AppendLine("       <th>Category</th>");
-            strTable.AppendLine("       <th>SubCategory</th>");
-            strTable.AppendLine("       <th>Description</th>");
-            strTable.AppendLine("       <th>Date</th>");
+            strTable.AppendLine("       <th class=\"th-md\">Amount</th>");
+            strTable.AppendLine("       <th class=\"th-md\">Category</th>");
+            strTable.AppendLine("       <th class=\"th-md\">SubCategory</th>");
+            strTable.AppendLine("       <th class=\"th-md\">Description</th>");
+            strTable.AppendLine("       <th class=\"th-md\">Date</th>");
             strTable.AppendLine("   </tr>");
 
             /* now we need to loop through all the results returned by our datareader, and add them as a row to the table */
             if (sdr == null)
             {
                 ViewBag.Msg = "Something went wrong trying to read the data";
-                model.strHTML = "";
+                model.strHTMLTable = "";
                 return View(model);
             }
+            double spent = 0;
+            double income = 0;
             while (sdr.Read())
             {
-                strTable.AppendLine("   <tr>");
-                strTable.AppendLine("       <td>" + sdr["Amount"] + "</td>");
+                /* we can check the category to both set the background color, and to keep total gross and total net spending */
+                if(sdr["Category"].ToString() == "Income")
+                {
+                    strTable.AppendLine("<tr style=\"background-color:#00FF7F;\">");
+                    try
+                    {
+                        income += double.Parse(sdr["Amount"].ToString());
+                    } catch { 
+                    //nothing to do if amount is null. it shouldn't happen since we validate before entering into the database
+                    }
+                }
+                else
+                {
+                    strTable.AppendLine("   <tr style=\"background-color:#CD5C5C;\">");
+                    try
+                    {
+                        spent += double.Parse(sdr["Amount"].ToString());
+                    }
+                    catch
+                    {
+                        //nothing to do if amount is null. it shouldn't happen since we validate before entering into the database
+                    }
+                }
+                strTable.AppendLine("       <td>$" + sdr["Amount"] + "</td>");
                 strTable.AppendLine("       <td>" + sdr["Category"] + "</td>");
                 strTable.AppendLine("       <td>" + sdr["Subcategory"] + "</td>");
                 strTable.AppendLine("       <td>" + sdr["Description"] + "</td>");
@@ -144,7 +178,11 @@ namespace budgetApp.Controllers
             }
             //dont forget to close the table
             strTable.AppendLine("</table>");
-            model.strHTML = strTable.ToString();
+            //now we need to set the totals as well
+            model.strHTML = "<table><tr><th class=\"th-md\">Total Spent</th>" +
+                "<td>&nbsp$" + spent + "</td>" + "<th class=\"th-md\">Total Net</th>" +
+                "<td>&nbsp$" + (income - spent) + "</td></tr></table>";
+            model.strHTMLTable = strTable.ToString();
             return View(model);
         }
         [HttpPost]
@@ -190,6 +228,12 @@ namespace budgetApp.Controllers
         {
             GlobalVariables.GlobalUsername = null;
             GlobalVariables.UserID = -1;
+            /* we will also want to 'delete' the username cookie */
+            try
+            {
+                Response.Cookies.Delete("username");
+            } catch (Exception ex) { }
+
             return RedirectToAction("Index");
         }
         
