@@ -26,6 +26,19 @@ namespace budgetApp.Controllers
                     string username = Request.Cookies["username"].ToString();
                     /* user was previously signed in and wanted to be remembered, so we can sign them back in */
                     GlobalVariables.GlobalUsername = username;
+                    /* we also want to get the userID for this user from the pgsql table. */
+                    string strSQL = "SELECT * FROM users Where Username = '" + username + "';";
+                    NpgsqlDataReader reader = clsDatabase.ExecuteDataReader(strSQL, config.GetValue<string>("DBConnString"));
+                    try
+                    {
+                        if (reader.Read())
+                        {
+                            GlobalVariables.UserID = int.Parse(reader["Id"].ToString());
+                        }
+                    } catch (Exception ex)
+                    {
+                        return RedirectToAction("SignIn");
+                    }
                     return View();
                 }catch(Exception ex)
                 {
@@ -116,14 +129,15 @@ namespace budgetApp.Controllers
             switch (model.period)
             {
                 case "YTD":
+                    sbSQL.Append(" AND date_part('year', CreatedTime) = date_part('year', now())");
                     break;
                 case "All":
                     break;
                 default:
-                    sbSQL.Append(" AND CreatedTime > '" + DateTime.Now.ToString() + " - " + model.period + "'");
+                    sbSQL.Append(" AND CreatedTime >= '" + DateTime.Now.AddDays(-1 * int.Parse(model.period)) + "'");
                     break;
             }
-            sbSQL.Append(";");
+            sbSQL.Append(" ORDER BY CreatedTime DESC;");
             NpgsqlDataReader sdr = clsDatabase.ExecuteDataReader(sbSQL.ToString(), config.GetValue<string>("DBConnString"));
             /* lets start building our table, put in the headers first. Space them nicely as well */
             StringBuilder strTable = new StringBuilder("<table class=\"table\">");
@@ -142,6 +156,8 @@ namespace budgetApp.Controllers
                 model.strHTMLTable = "";
                 return View(model);
             }
+            /* change Msg to nothing here in case something went wrong prior */
+            ViewBag.Msg = "";
             double spent = 0;
             double income = 0;
             while (sdr.Read())
