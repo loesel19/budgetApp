@@ -50,7 +50,12 @@
             <tr>
                 <th scope="col">Description(Optional)</th>
                 <th scope="col">@Html.TextAreaFor(x=>x.description, new {@style = "heigth: 80px; width: 200px;", @id="txtDesc"})</th>
-            </tr>        
+            </tr>
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Date other than today @Html.CheckBoxFor(x=>x.otherDate, new {@id="chkDate"})</th>
+                <th scope="col"><input type="date" name="date" id="dtpDate"/></th>
+            </tr>
         </table>
         <button type="submit" class="btn btn-outline-success btn-lg">Submit</button>
     </div>
@@ -70,8 +75,15 @@
         }
         
         if(document.getElementById("ddlCat").value == null || document.getElementById("ddlCat").value == ""){
-            alert("Must select a category.")
-            return false
+            alert("Must select a category.");
+            return false;
+        }
+        if(document.getElementById("chkDate").checked){
+            //if they checked the other date radio button we need to make sure they chose a date
+            if(document.getElementById("dtpDate").value == null || document.getElementById("dtpDate").value == ""){
+                alert("If you wish to change the date you must select one from the datepicker.");
+                return false;
+            }
         }
         return true;
     }

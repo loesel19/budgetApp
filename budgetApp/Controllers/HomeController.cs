@@ -37,8 +37,10 @@ namespace budgetApp.Controllers
                         }
                     } catch (Exception ex)
                     {
+                        reader.Close();
                         return RedirectToAction("SignIn");
                     }
+                    reader.Close();
                     return View();
                 }catch(Exception ex)
                 {
@@ -67,9 +69,18 @@ namespace budgetApp.Controllers
             {
                 model.description = "";
             }
+            //since the user will be able to choose if they want to use a date that is not today we need to check for that
+            /* make a variable for date, do it as a datetime value since that is the type we use in our model */
+            DateTime insertDate = DateTime.Now;
+            //we set it to now first, if user wants another date we change it
+            if (model.otherDate)
+            {
+                insertDate = model.date;
+            }
             string sqlCommand = String.Format("INSERT INTO entrys (amount, category, subcategory, description, userID, createdtime) values({0}, {1}, {4}, {2}, {3}, {5});",
                 "'" + model.amount + "'", "'" + model.category + "'", "'" + model.description + "'", "'" + GlobalVariables.UserID + "'", "'" + model.subCategory + "'", 
-                "'" + DateTime.Now + "'");
+                "'" + insertDate + "'");
+            //now try to insert the column
             if (clsDatabase.ExecuteSQLNonQuery(sqlCommand, config.GetValue<string>("DBConnString")))
             {
                 /* we were able to add the entry to our database */
@@ -199,6 +210,7 @@ namespace budgetApp.Controllers
                 "<td>&nbsp$" + spent + "</td>" + "<th class=\"th-md\">Total Net</th>" +
                 "<td>&nbsp$" + (income - spent) + "</td></tr></table>";
             model.strHTMLTable = strTable.ToString();
+            sdr.Close();
             return View(model);
         }
         [HttpPost]
