@@ -120,7 +120,7 @@ namespace budgetApp.Controllers
                 case "All":
                     break;
                 default:
-                    sbSQL.Append(" AND CreatedTime > '" + DateTime.Now.ToString() + "-" + model.period + "'");
+                    sbSQL.Append(" AND CreatedTime > '" + DateTime.Now.ToString() + " - " + model.period + "'");
                     break;
             }
             sbSQL.Append(";");
@@ -209,13 +209,13 @@ namespace budgetApp.Controllers
                     return RedirectToAction("Index");
                 }
                 //incorrect signin values
-                ViewBag.Msg = "Username password incorrect.";
+                ViewBag.Msg = "Username/password incorrect.";
                 return View();
             }
             else
             {
                 //incorrect signin values
-                ViewBag.Msg = "Username password incorrect.";
+                ViewBag.Msg = "Username/password incorrect.";
                 return View();
             }
             /* TODO: check database that username passowrd combo is correct */
