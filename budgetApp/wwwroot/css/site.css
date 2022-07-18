@@ -16,6 +16,17 @@ html {
 body {
   margin-bottom: 60px;
 }
-.th-md{
-    width: 20%;
+.th-md {
+    max-width: 20%;
+    overflow: hidden;
+    
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.td-md {
+    text-align: center;
+    overflow: hidden;
+   
+    word-wrap: break-word;
+    vertical-align: middle;
 }

@@ -151,7 +151,7 @@ namespace budgetApp.Controllers
             sbSQL.Append(" ORDER BY CreatedTime DESC;");
             NpgsqlDataReader sdr = clsDatabase.ExecuteDataReader(sbSQL.ToString(), config.GetValue<string>("DBConnString"));
             /* lets start building our table, put in the headers first. Space them nicely as well */
-            StringBuilder strTable = new StringBuilder("<table class=\"table\">");
+            StringBuilder strTable = new StringBuilder("<table class=\"table\" style=\"table-layout: fixed; border-collapes: collapse;\">");
             strTable.AppendLine("   <tr>");
             strTable.AppendLine("       <th class=\"th-md\">Amount</th>");
             strTable.AppendLine("       <th class=\"th-md\">Category</th>");
@@ -196,11 +196,11 @@ namespace budgetApp.Controllers
                         //nothing to do if amount is null. it shouldn't happen since we validate before entering into the database
                     }
                 }
-                strTable.AppendLine("       <td>$" + sdr["Amount"] + "</td>");
-                strTable.AppendLine("       <td>" + sdr["Category"] + "</td>");
-                strTable.AppendLine("       <td>" + sdr["Subcategory"] + "</td>");
-                strTable.AppendLine("       <td>" + sdr["Description"] + "</td>");
-                strTable.AppendLine("       <td>" + sdr["Createdtime"] + "</td>");
+                strTable.AppendLine("       <td class=\"td-md\">$" + sdr["Amount"] + "</td>");
+                strTable.AppendLine("       <td class=\"td-md\">" + sdr["Category"] + "</td>");
+                strTable.AppendLine("       <td class=\"td-md\">" + sdr["Subcategory"] + "</td>");
+                strTable.AppendLine("       <td class=\"td-md\">" + sdr["Description"] + "</td>");
+                strTable.AppendLine("       <td class=\"td-md\">" + sdr["Createdtime"] + "</td>");
                 strTable.AppendLine("   </tr>");
             }
             //dont forget to close the table
