@@ -151,13 +151,14 @@ namespace budgetApp.Controllers
             sbSQL.Append(" ORDER BY CreatedTime DESC;");
             NpgsqlDataReader sdr = clsDatabase.ExecuteDataReader(sbSQL.ToString(), config.GetValue<string>("DBConnString"));
             /* lets start building our table, put in the headers first. Space them nicely as well */
-            StringBuilder strTable = new StringBuilder("<table class=\"table\" style=\"table-layout: fixed; border-collapes: collapse;\">");
+            StringBuilder strTable = new StringBuilder("<table class=\"table\" id=\"reportTable\" style=\"table-layout: fixed; border-collapes: collapse;\">");
             strTable.AppendLine("   <tr>");
             strTable.AppendLine("       <th class=\"th-md\">Amount</th>");
             strTable.AppendLine("       <th class=\"th-md\">Category</th>");
             strTable.AppendLine("       <th class=\"th-md\">SubCategory</th>");
             strTable.AppendLine("       <th class=\"th-md\">Description</th>");
             strTable.AppendLine("       <th class=\"th-md\">Date</th>");
+            strTable.AppendLine("       <th class=\"th-md\" id=\"editStateHead\"><img src=\"/lib/images/lock.jpg\" class=\"img-header\" onclick=\"checkEditState()\"/></th>");
             strTable.AppendLine("   </tr>");
 
             /* now we need to loop through all the results returned by our datareader, and add them as a row to the table */
@@ -171,6 +172,7 @@ namespace budgetApp.Controllers
             ViewBag.Msg = "";
             double spent = 0;
             double income = 0;
+            int count = 0; //counter for assigning ids
             while (sdr.Read())
             {
                 /* we can check the category to both set the background color, and to keep total gross and total net spending */
@@ -196,12 +198,16 @@ namespace budgetApp.Controllers
                         //nothing to do if amount is null. it shouldn't happen since we validate before entering into the database
                     }
                 }
-                strTable.AppendLine("       <td class=\"td-md\">$" + sdr["Amount"] + "</td>");
-                strTable.AppendLine("       <td class=\"td-md\">" + sdr["Category"] + "</td>");
-                strTable.AppendLine("       <td class=\"td-md\">" + sdr["Subcategory"] + "</td>");
-                strTable.AppendLine("       <td class=\"td-md\">" + sdr["Description"] + "</td>");
-                strTable.AppendLine("       <td class=\"td-md\">" + sdr["Createdtime"] + "</td>");
+                strTable.AppendLine("       <td class=\"td-md\" id=\"amt" + count + "\">$" + sdr["Amount"] + "</td>");
+                strTable.AppendLine("       <td class=\"td-md\" id=\"cat" + count + "\">" + sdr["Category"] + "</td>");
+                strTable.AppendLine("       <td class=\"td-md\" id=\"sub" + count + "\">" + sdr["Subcategory"] + "</td>");
+                strTable.AppendLine("       <td class=\"td-md\" id=\"des" + count + "\">" + sdr["Description"] + "</td>");
+                strTable.AppendLine("       <td class=\"td-md\" id=\"crt" + count + "\">" + sdr["Createdtime"] + "</td>");
+                strTable.AppendLine("       <td class=\"td-md\" id=\"colEdit" + count + "\"><input type=\"button\" class=\"btn btn-warning btn-sm btn-row\" id=\"edt" + count + "\"/>" +
+                    " &nbsp <input type=\"button\" class=\"btn btn-danger btn-sm btn-row\" id=\"del" + count + "\"/>");
                 strTable.AppendLine("   </tr>");
+                //increment counter
+                count++;
             }
             //dont forget to close the table
             strTable.AppendLine("</table>");

@@ -19,14 +19,31 @@ body {
 .th-md {
     max-width: 20%;
     overflow: hidden;
-    
+    text-align: center;
     text-overflow: ellipsis;
     white-space: nowrap;
+    border-bottom: 3px solid black;
 }
 .td-md {
     text-align: center;
     overflow: hidden;
-   
+    border-left: 1px solid black;
+    border-right: 1px solid black;
     word-wrap: break-word;
     vertical-align: middle;
+}
+.th-img {
+    max-width: 20%;
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border-bottom: 3px solid black;
+}
+.img-header{
+    width: 12%;
+}
+.btn-row {
+    width: 20%;
+    height: auto;
 }
