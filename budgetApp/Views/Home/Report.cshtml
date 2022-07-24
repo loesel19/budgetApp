@@ -43,7 +43,14 @@ function editEntry(e, t){
     if(document.getElementById("chkEditable").checked){
         if(confirm("Change Entry?")){
             var url = "editEntry";
-            $.post(url)
+            $.post(url, function(data){
+                if(data){
+                    alert("sucessfully edited entry...");
+                    location.reload();
+                }else{
+                    alert("something went wrong, no changes made.");
+                }
+            });
         }
     }
     
@@ -52,14 +59,19 @@ function deleteEntry(e, id){
     if(document.getElementById("chkEditable").checked){
         if(confirm("Delete Entry?")){
             //id will bet delx where x is the number, we have to parse it.
-            alert(id)
             var x = id.replace('d','');
             x = x.replace('e','');
             x = x.replace('l', '');
-            alert(x);
             // we need to post the id of the entry to delete to the controller
             var url = "deleteEntry?entryID=" + x;
-            $.post(url)
+            $.post(url, function(data){
+                if(data){
+                    alert("entry has been deleted... or this will work once I do the npgsqlTransaction correctly.");
+                    location.reload();
+                }else{
+                    alert("something went wrong, entry not deleted.");
+                }
+            });
         }else{
             return;
         }
