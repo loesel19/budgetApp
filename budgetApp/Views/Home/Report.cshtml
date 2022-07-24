@@ -11,7 +11,7 @@
 </form>
 @Html.Raw(Model.strHTML)
 @Html.Raw(Model.strHTMLTable)
-<input type="checkbox" id="chkEditable" value="false"  />
+<input type="checkbox" id="chkEditable" value="false" hidden />
 </body>
 <script>
 function checkEditState() {
@@ -42,8 +42,8 @@ function setEditVisibility(blnVisible){
 function editEntry(e, t){
     if(document.getElementById("chkEditable").checked){
         if(confirm("Change Entry?")){
-            var url = 
-            $.post()
+            var url = "editEntry";
+            $.post(url)
         }
     }
     
@@ -51,8 +51,10 @@ function editEntry(e, t){
 function deleteEntry(e, t){
     if(document.getElementById("chkEditable").checked){
         if(confirm("Delete Entry?")){
-            var url = 
-            $.posrt()
+            var url = "deleteEntry";
+            $.post(url)
+        }else{
+            return;
         }
     }
     

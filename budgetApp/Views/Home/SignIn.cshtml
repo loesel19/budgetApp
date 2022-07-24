@@ -4,7 +4,7 @@
 <h2 style="color:red;">@ViewBag.Msg</h2>
 <form asp-controller="Home" method="post" id="signUpForm" role="form">
 <p>Username: @Html.TextBoxFor(x=>x.username, new {@id="txtUsername"})</p>
-<p>Password: @Html.TextBoxFor(x=>x.password, new {@id="txtPassword"})</p>
+<p>Password: @Html.TextBoxFor(x=>x.password, new {@id="txtPassword", @type="password"})</p>
 <button type="button" onclick="preSubmitCheck()" class="btn btn-outline-success btn-lg">Sign In</button>
 <p>Stay Signed in <input type="checkbox" id="chkRemember" /></p>
 </form>

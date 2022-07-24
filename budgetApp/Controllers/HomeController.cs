@@ -127,7 +127,7 @@ namespace budgetApp.Controllers
         {
             /* we need to make a report, lets do it as a table to make it look nice. We will want to use a string builder 
              * and a couple switch statements since there are a lot of differenct reports we can generate. */
-            StringBuilder sbSQL = new StringBuilder("SELECT * From entrys WHERE Userid = '" + GlobalVariables.UserID + "'");
+            StringBuilder sbSQL = new StringBuilder("SELECT * From entrys WHERE userID = '" + GlobalVariables.UserID + "'");
             switch (model.category)
             {
                 case "All":
@@ -153,6 +153,7 @@ namespace budgetApp.Controllers
             /* lets start building our table, put in the headers first. Space them nicely as well */
             StringBuilder strTable = new StringBuilder("<table class=\"table\" id=\"reportTable\" style=\"table-layout: fixed; border-collapes: collapse;\">");
             strTable.AppendLine("   <tr>");
+            strTable.AppendLine("       <th class=\"th-md\">entryID</th>");
             strTable.AppendLine("       <th class=\"th-md\">Amount</th>");
             strTable.AppendLine("       <th class=\"th-md\">Category</th>");
             strTable.AppendLine("       <th class=\"th-md\">SubCategory</th>");
@@ -198,6 +199,7 @@ namespace budgetApp.Controllers
                         //nothing to do if amount is null. it shouldn't happen since we validate before entering into the database
                     }
                 }
+                strTable.AppendLine("       <td class=\"td-md\" id=\"entryID" + count + "\">" + sdr["entryID"] + "</td>");
                 strTable.AppendLine("       <td class=\"td-md\" id=\"amt" + count + "\">$" + sdr["Amount"] + "</td>");
                 strTable.AppendLine("       <td class=\"td-md\" id=\"cat" + count + "\">" + sdr["Category"] + "</td>");
                 strTable.AppendLine("       <td class=\"td-md\" id=\"sub" + count + "\">" + sdr["Subcategory"] + "</td>");
@@ -222,7 +224,7 @@ namespace budgetApp.Controllers
         [HttpPost]
         public IActionResult SignIn(UserModel model)
         {
-            string strSQL = "SELECT Id, username FROM users WHERE username = '" + model.username + "' AND passward = '" + model.password + "';";
+            string strSQL = "SELECT userID, username FROM users WHERE username = '" + model.username + "' AND password = '" + model.password + "';";
             NpgsqlDataReader reader = clsDatabase.ExecuteDataReader(strSQL, config.GetValue<string>("DBConnString"));
             if(!(reader == null))
             {
@@ -232,7 +234,7 @@ namespace budgetApp.Controllers
                     try
                     {
                         GlobalVariables.GlobalUsername = model.username;
-                        GlobalVariables.UserID = int.Parse(reader["Id"].ToString());
+                        GlobalVariables.UserID = int.Parse(reader["userID"].ToString());
                     }
                     catch (Exception ex)
                     {
@@ -295,7 +297,7 @@ namespace budgetApp.Controllers
             else
             {
                 /* we can sign up the new user */
-                strSQL = "INSERT INTO users (username, passward) values ('" + model.username + "', '" + model.password + "');";
+                strSQL = "INSERT INTO users (username, password) values ('" + model.username + "', '" + model.password + "');";
                 if(clsDatabase.ExecuteSQLNonQuery(strSQL, config.GetValue<string>("DBConnString"))){
                     /* user was signed up successfully */
                     ViewBag.Msg = "Account created succesfully please signin.";
@@ -312,7 +314,7 @@ namespace budgetApp.Controllers
         {
             /* this method will be accessed through an ajax call in the report page. The user wants to delete a row from the database 
              * so we */
-            string stringSql = "DELETE From users WHERE description = '" + description + "' AND date = '" + date + "' AND Userid = " + GlobalVariables.UserID + ";";
+            string stringSql = "DELETE From users WHERE description = '" + description + "' AND date = '" + date + "' AND userID = " + GlobalVariables.UserID + ";";
             if(clsDatabase.ExecuteSQLNonQuery(stringSql, config.GetValue<string>("DBConnString")))
             {
                 return true;
