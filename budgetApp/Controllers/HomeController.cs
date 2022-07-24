@@ -205,8 +205,8 @@ namespace budgetApp.Controllers
                 strTable.AppendLine("       <td class=\"td-md\" id=\"sub" + count + "\">" + sdr["Subcategory"] + "</td>");
                 strTable.AppendLine("       <td class=\"td-md\" id=\"des" + count + "\">" + sdr["Description"] + "</td>");
                 strTable.AppendLine("       <td class=\"td-md\" id=\"crt" + count + "\">" + sdr["Createdtime"] + "</td>");
-                strTable.AppendLine("       <td class=\"td-md\" id=\"colEdit" + count + "\"><input type=\"button\" class=\"btn btn-secondary btn-sm btn-row\" onclick=\"editEntry(event, this)\" id=\"edt" + count + "\"/>" +
-                    " &nbsp <input type=\"button\" class=\"btn btn-secondary btn-sm btn-row\" onclick=\"deleteEntry(event, this)\" id=\"del" + count + "\"/>");
+                strTable.AppendLine("       <td class=\"td-md\" id=\"colEdit" + count + "\"><input type=\"button\" class=\"btn btn-secondary btn-sm btn-row\" onclick=\"editEntry(event, this.id)\" id=\"edt" + count + "\"/>" +
+                    " &nbsp <input type=\"button\" class=\"btn btn-secondary btn-sm btn-row\" onclick=\"deleteEntry(event, this.id)\" id=\"del" + count + "\"/>");
                 strTable.AppendLine("   </tr>");
                 //increment counter
                 count++;
@@ -310,11 +310,11 @@ namespace budgetApp.Controllers
                 }
             }
         }
-        public bool deleteEntry([FromQuery] string date, [FromQuery] string description)
+        public bool deleteEntry([FromQuery] int entryID)
         {
             /* this method will be accessed through an ajax call in the report page. The user wants to delete a row from the database 
              * so we */
-            string stringSql = "DELETE From users WHERE description = '" + description + "' AND date = '" + date + "' AND userID = " + GlobalVariables.UserID + ";";
+            string stringSql = "DELETE From entrys WHERE entryID = " + entryID + ";";
             if(clsDatabase.ExecuteSQLNonQuery(stringSql, config.GetValue<string>("DBConnString")))
             {
                 return true;

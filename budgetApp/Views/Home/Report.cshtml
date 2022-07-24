@@ -48,15 +48,21 @@ function editEntry(e, t){
     }
     
 }
-function deleteEntry(e, t){
+function deleteEntry(e, id){
     if(document.getElementById("chkEditable").checked){
         if(confirm("Delete Entry?")){
-            var url = "deleteEntry";
+            //id will bet delx where x is the number, we have to parse it.
+            alert(id)
+            var x = id.replace('d','');
+            x = x.replace('e','');
+            x = x.replace('l', '');
+            alert(x);
+            // we need to post the id of the entry to delete to the controller
+            var url = "deleteEntry?entryID=" + x;
             $.post(url)
         }else{
             return;
         }
     }
-    
 }
 </script>
