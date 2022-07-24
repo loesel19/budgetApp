@@ -58,12 +58,15 @@ function editEntry(e, t){
 function deleteEntry(e, id){
     if(document.getElementById("chkEditable").checked){
         if(confirm("Delete Entry?")){
-            //id will bet delx where x is the number, we have to parse it.
+            //we have to get the entryID of the entry we want to delete. First lets get the row number from the id of the button that fired this event
             var x = id.replace('d','');
             x = x.replace('e','');
             x = x.replace('l', '');
+            //now we can get the value out of the entryID column in row number x
+            var entryID = parseInt(document.getElementById("entryID" + x).innerHTML);
+            alert(entryID);
             // we need to post the id of the entry to delete to the controller
-            var url = "deleteEntry?entryID=" + x;
+            var url = "deleteEntry?entryID=" + entryID;
             $.post(url, function(data){
                 if(data){
                     alert("entry has been deleted... or this will work once I do the npgsqlTransaction correctly.");
