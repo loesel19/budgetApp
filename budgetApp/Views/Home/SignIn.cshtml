@@ -30,9 +30,8 @@ function preSubmitCheck(){
         
         if(document.getElementById("chkRemember").checked){
             const d = new Date();
-            d.setTime(d.getTime() + 2592000);
-            document.cookie = "username=" + document.getElementById("txtUsername").value + ";expires=" + d.toUTCString + ";path=/"
-            alert(document.cookie)
+            d.setDate(d.getDate() + 30);
+            document.cookie = "username=" + document.getElementById("txtUsername").value + ";expires=" + d.toUTCString() + ";path=/"
             alert("You will stay signed in for the next 30 days.")
         }
         //submit the form
