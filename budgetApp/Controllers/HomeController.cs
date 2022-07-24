@@ -203,8 +203,8 @@ namespace budgetApp.Controllers
                 strTable.AppendLine("       <td class=\"td-md\" id=\"sub" + count + "\">" + sdr["Subcategory"] + "</td>");
                 strTable.AppendLine("       <td class=\"td-md\" id=\"des" + count + "\">" + sdr["Description"] + "</td>");
                 strTable.AppendLine("       <td class=\"td-md\" id=\"crt" + count + "\">" + sdr["Createdtime"] + "</td>");
-                strTable.AppendLine("       <td class=\"td-md\" id=\"colEdit" + count + "\"><input type=\"button\" class=\"btn btn-warning btn-sm btn-row\" id=\"edt" + count + "\"/>" +
-                    " &nbsp <input type=\"button\" class=\"btn btn-danger btn-sm btn-row\" id=\"del" + count + "\"/>");
+                strTable.AppendLine("       <td class=\"td-md\" id=\"colEdit" + count + "\"><input type=\"button\" class=\"btn btn-secondary btn-sm btn-row\" onclick=\"editEntry(event, this)\" id=\"edt" + count + "\"/>" +
+                    " &nbsp <input type=\"button\" class=\"btn btn-secondary btn-sm btn-row\" onclick=\"deleteEntry(event, this)\" id=\"del" + count + "\"/>");
                 strTable.AppendLine("   </tr>");
                 //increment counter
                 count++;
@@ -308,5 +308,23 @@ namespace budgetApp.Controllers
                 }
             }
         }
-    }
+        public bool deleteEntry([FromQuery] string date, [FromQuery] string description)
+        {
+            /* this method will be accessed through an ajax call in the report page. The user wants to delete a row from the database 
+             * so we */
+            string stringSql = "DELETE From users WHERE description = '" + description + "' AND date = '" + date + "' AND Userid = " + GlobalVariables.UserID + ";";
+            if(clsDatabase.ExecuteSQLNonQuery(stringSql, config.GetValue<string>("DBConnString")))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public bool editEntry([FromQuery] string date, [FromQuery] string description, [FromQuery] string amount, [FromQuery] string category, [FromQuery] string subcategory)
+        {
+            return false;
+        }
+    } 
 }

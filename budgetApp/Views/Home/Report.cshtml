@@ -2,7 +2,7 @@
 <head>
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
-<body>
+<body onload="setEditVisibility(false)">
 <h2>@ViewBag.Msg</h2>
 <form asp-controller="Home" method="post" id="reportForm" role="form">
     @Html.DropDownListFor(x => x.category, Model.categories)
@@ -11,27 +11,50 @@
 </form>
 @Html.Raw(Model.strHTML)
 @Html.Raw(Model.strHTMLTable)
+<input type="checkbox" id="chkEditable" value="false"  />
 </body>
 <script>
 function checkEditState() {
-    if(document.getElementById("colEdit0").style.width == "0%"){
+    if(document.getElementById("chkEditable").checked){
         document.getElementById("editStateHead").innerHTML = "<img src=\"/lib/images/lock.jpg\" class=\"img-header\" onclick=\"checkEditState()\"/>"
-        //if we lock it then we want the buttons to be invisible
+        //flip checkbox
+        document.getElementById("chkEditable").checked = false;
         setEditVisibility(false)
+
     }else{
         document.getElementById("editStateHead").innerHTML = "<img src=\"/lib/images/unlock.jpg\" class=\"img-header\" onclick=\"checkEditState()\"/>"
+        document.getElementById("chkEditable").checked = true;
         setEditVisibility(true)
     }
 }
 function setEditVisibility(blnVisible){
     var table = document.getElementById("reportTable");
-    for(let i = 0; i < table.rows.length; i++){
-        if(document.getElementById("colEdit" + i).style.width == "0%"){
-            document.getElementById("colEdit" + i).style.width = "20%;";
-            
+    for(let i = 0; i < table.rows.length - 1; i++){
+        if(blnVisible){
+            document.getElementById("edt" + i).setAttribute("class", "btn btn-warning btn-sm btn-row");
+            document.getElementById("del" + i).setAttribute("class", "btn btn-danger btn-sm btn-row");
         }else{
-            document.getElementById("colEdit" + i).style.width = "0%;";
+            document.getElementById("edt" + i).setAttribute("class", "btn btn-secondary btn-sm btn-row");
+            document.getElementById("del" + i).setAttribute("class", "btn btn-secondary btn-sm btn-row");
         }
     }
+}
+function editEntry(e, t){
+    if(document.getElementById("chkEditable").checked){
+        if(confirm("Change Entry?")){
+            var url = 
+            $.post()
+        }
+    }
+    
+}
+function deleteEntry(e, t){
+    if(document.getElementById("chkEditable").checked){
+        if(confirm("Delete Entry?")){
+            var url = 
+            $.posrt()
+        }
+    }
+    
 }
 </script>
