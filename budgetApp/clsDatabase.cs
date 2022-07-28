@@ -61,10 +61,8 @@ namespace budgetApp
             /* by calling dispose here we will clean up any hanging connections or other loose ends within the class. 
              * This method should be called everytime we finish using the clsDatabase object to keep our application
              * running smoothing on this end. */
-            _connection.Dispose();
-            //after we 'manually dispose' unmanaged rescources we can suppress the finalization of the object so that garbage collection does
-            // not try to do it again.
-            GC.SuppressFinalize(this);
+            if (_connection != null)
+                _connection.Dispose();
         }
        // The following subprograms are used to interact with data in our database
         public Boolean ExecuteSQLNonQuery(string strSQL)
