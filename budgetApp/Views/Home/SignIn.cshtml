@@ -1,6 +1,9 @@
 ﻿
 @model budgetApp.Models.UserModel
-
+<head>
+    <link type="text/javascript" href="/js/site.js" />
+</head>
+<body>
 <h2 style="color:red;">@ViewBag.Msg</h2>
 <form asp-controller="Home" method="post" id="signUpForm" role="form">
 <p>Username: @Html.TextBoxFor(x=>x.username, new {@id="txtUsername"})</p>
@@ -9,6 +12,7 @@
 <p>Stay Signed in <input type="checkbox" id="chkRemember" /></p>
 </form>
 @Html.ActionLink("Sing Up", "signUp")
+</body>
 
 <script>
 function checkFields(){
@@ -29,11 +33,11 @@ function preSubmitCheck(){
     if(checkFields()){
         
         if(document.getElementById("chkRemember").checked){
-            const d = new Date();
-            d.setDate(d.getDate() + 30);
-            document.cookie = "username=" + document.getElementById("txtUsername").value + ";expires=" + d.toUTCString() + ";path=/"
-            alert("You will stay signed in for the next 30 days.")
+            generateUserCookie(document.getElementById("txtUsername").value, true);
+        }else{
+            generateUserCookie(document.getElementById("txtUsername").value, false);
         }
+        generateSessionCookie();
         //submit the form
         document.getElementById("signUpForm").submit();
         return true;

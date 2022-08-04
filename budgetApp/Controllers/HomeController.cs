@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace budgetApp.Controllers
@@ -33,7 +34,7 @@ namespace budgetApp.Controllers
             {
                 try
                 {
-                    string username = Request.Cookies["username"].ToString();
+                    string username = Request.Cookies["user"].ToString();
                     /* user was previously signed in and wanted to be remembered, so we can sign them back in */
                     GlobalVariables.GlobalUsername = username;
                     /* we also want to get the userID for this user from the pgsql table. */
@@ -283,7 +284,8 @@ namespace budgetApp.Controllers
         [HttpPost]
         public IActionResult SignIn(UserModel model)
         {
-            string strSQL = "SELECT userID, username FROM users WHERE username = '" + model.username + "' AND password = '" + model.password + "';";
+           
+            string strSQL = "SELECT userID, username FROM users WHERE username = '" + model.username + "' AND password = '" + validHash(model.password) + "';";
             //make an instance of our db class.
             clsDatabase objDB = new clsDatabase(config.GetValue<string>("DBConnString"));
             //try to open the connection
@@ -354,7 +356,7 @@ namespace budgetApp.Controllers
             /* we will also want to 'delete' the username cookie */
             try
             {
-                Response.Cookies.Delete("username");
+                Response.Cookies.Delete("user");
             } catch (Exception ex) { throw ex; }
 
             return RedirectToAction("Index");
@@ -407,8 +409,12 @@ namespace budgetApp.Controllers
             }
             else
             {
+                //close our datreader
+                sdr.Close();
+                //lets hash the password before storing it in the database
+                
                 /* we can sign up the new user */
-                strSQL = "INSERT INTO users (username, password) values ('" + model.username + "', '" + model.password + "');";
+                strSQL = "INSERT INTO users (username, password) values ('" + model.username + "', '" + validHash(model.password) + "');";
                 if(objDB.ExecuteSQLNonQuery(strSQL)){
                     /* user was signed up successfully */
                     ViewBag.Msg = "Account created succesfully please signin.";
@@ -492,6 +498,31 @@ namespace budgetApp.Controllers
         public bool editEntry([FromQuery] string date, [FromQuery] string description, [FromQuery] string amount, [FromQuery] string category, [FromQuery] string subcategory)
         {
             return false;
+        }
+        private string validHash(string strNormal)
+        {
+            /**
+             * @name : validHash
+             * @author : Andrew A. Loesel
+             * @params : strHash - the hashed string that we need to make sure is valid
+             * @returns : strValid - a valid hashed string
+             * @purpose : The purpose of this method is to hash the passowrd and then make sure the hashed version of the password we send to the database does not contain any characters
+             *            that could mess up our database, for example if the password we try to send is x23's4 the ' will make the database think that s4 is some random
+             *            garbage and will not accept any transactions with that string.
+             *            */
+            string strValid = "";
+            
+            byte[] hashPassword;
+            using (HashAlgorithm hash = SHA256.Create())
+            {
+                hashPassword = hash.ComputeHash(Encoding.UTF8.GetBytes(strNormal));
+            }
+            var strHashed = System.Text.Encoding.Default.GetString(hashPassword);
+            strValid = strHashed.Replace('\'', '!');
+            strValid = strValid.Replace('\"', '?');
+            strValid = strValid.Replace(';', '*');
+
+            return strValid;
         }
     } 
 }
