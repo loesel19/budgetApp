@@ -25,7 +25,10 @@
 }
 
 @model budgetApp.Models.EntryModel
-
+<head>
+    <link type="text/javascript" href="~/js/site.js" />
+</head>
+<body onload="checkSession()">
 <div class="text-center">
     <h1 class="display-4">@ViewBag.Message</h1>
 </div>
@@ -64,6 +67,7 @@
         @Html.ActionLink("View Reports", "Report", new {@class="btn btn-outline-secondary btn-lg", @style="font-size: 55;"})
     </div>
 
+    </body>
 <script>
 //make sure that all required fields have a value before sending them back
     
@@ -86,5 +90,11 @@
             }
         }
         return true;
+    }
+    function checkSession(){
+        var x;
+        $.get("/Home/checkSessionCookie", new function(data) {
+            alert(data);
+        });
     }
 </script>

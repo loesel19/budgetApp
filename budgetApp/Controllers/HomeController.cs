@@ -499,7 +499,7 @@ namespace budgetApp.Controllers
         {
             return false;
         }
-        private string validHash(string strNormal)
+        private string validHash([FromQuery] string strNormal)
         {
             /**
              * @name : validHash
@@ -523,6 +523,16 @@ namespace budgetApp.Controllers
             strValid = strValid.Replace(';', '*');
 
             return strValid;
+        }
+        public string readUserCookie()
+        {
+            string x = Request.Cookies["user"];
+            return x;
+        }
+        public string readSessionCookie()
+        {
+            string x = Request.Cookies["validSession"];
+            return x;
         }
     } 
 }

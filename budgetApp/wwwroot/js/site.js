@@ -3,13 +3,21 @@
 
 // Write your JavaScript code.
 
-function checkUserSession(){
-    if (document.cookie["user"] == null) {
+function checkUserSession() {
+    var x;
+    $.get("/Home/readUserCookie", function (data) {
+        x = data;
+    });
+    if (x == null) {
         return false;
     }
-    var url = "/Home/validHash?strNormal=" + document.cookie["user"]
-    $.get(url, null, new function (data) {
-        if (document.cookie["validSession"] == data) {
+    var y;
+    $.get("/Home/readSessionCookie",  function (data) {
+        y = data;
+    });
+    var url = "/Home/validHash?strNormal=" + x
+    $.get(url, null, function (data) {
+        if (y == data) {
             return true;
         }
         return false;
@@ -27,14 +35,25 @@ function generateUserCookie(username, boo) {
         document.cookie = "user=" + username + ";path=/";
     }
 }
+
 function generateSessionCookie() {
-    if (document.cookie["user"] == null) {
+    alert("in session cookie method")
+    var x;
+
+    var arr = document.cookie.split(';');
+    for (var i = 0; i < arr.length; i++) {
+        var temp = arr[i].split("=");
+        if (temp[0] == "user") {
+            x = temp[1];
+            break;
+        }
+    }
+    if (x == null || x == "") {
+        alert("user was null")
         return false;
     }
-    var url = "/Home/validHash?strNormal=" + document.cookie["user"]
-    $.get(url, null, new function (data) {
-        document.cookie = "validSession=" + data + ";path=/";
-        return true;
-    });
+
+   var 
+   
     return false;
 }
