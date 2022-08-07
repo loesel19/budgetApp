@@ -47,6 +47,7 @@ namespace budgetApp.Controllers
                     clsDatabase objDB = new clsDatabase(config.GetValue<string>("DBConnString"));
                     if (!generateSessionCookie())
                     {
+                        // we try to generate a session cookie, but can't so there is no cookie for the user
                         return RedirectToAction("SignIn");
                     }
                     //try to open the connection
@@ -96,6 +97,12 @@ namespace budgetApp.Controllers
         public IActionResult Index([FromForm] EntryModel model)
         {
             /* we want to try to post the entry to our database */
+            //check to see if there is an open session for the user
+            if (!checkSession())
+            {
+                ViewBag.Message = "No open session, please sign out and sign back in. ";
+                return View();
+            }
             //first make a sql string
             if (String.IsNullOrEmpty(model.subCategory))
             {
@@ -168,6 +175,12 @@ namespace budgetApp.Controllers
         [HttpGet]
         public IActionResult Report()
         {
+            //check to see if there is an open session for the user
+            if (!checkSession())
+            {
+                ViewBag.Message = "No open session, please sign out and sign back in. ";
+                return View();
+            }
             ReportModel model = new ReportModel();
             return View(model);
         }
@@ -355,6 +368,12 @@ namespace budgetApp.Controllers
         {
             /** This method 'signs the user out' right now we just delete the cookie that is stored in the browser,
              * eventually we will have to deal with whatever authentication method is used. */
+            //check to see if there is an open session for the user
+            if (!checkSession())
+            {
+                ViewBag.Message = "No open session, please sign out and sign back in. ";
+                return View();
+            }
             GlobalVariables.GlobalUsername = null;
             GlobalVariables.UserID = -1;
             /* we will also want to 'delete' the username cookie */
@@ -444,6 +463,12 @@ namespace budgetApp.Controllers
             /* this method will be accessed through an ajax call in the report page. The user wants to delete a row from the database 
              * here we will have to encapsulate our sql commands in a npgsqlTransaction. */
             //make an instance of our db object
+            //check to see if there is an open session for the user
+            if (!checkSession())
+            {
+                ViewBag.Message = "No open session, please sign out and sign back in. ";
+                return false;
+            }
             clsDatabase objDB = new clsDatabase(config.GetValue<string>("DBConnString"));
 
             //lets get a connection from our database class
@@ -501,6 +526,12 @@ namespace budgetApp.Controllers
         }
         public bool editEntry([FromQuery] string date, [FromQuery] string description, [FromQuery] string amount, [FromQuery] string category, [FromQuery] string subcategory)
         {
+            //check to see if there is an open session for the user
+            if (!checkSession())
+            {
+                ViewBag.Message = "No open session, please sign out and sign back in. ";
+                return false;
+            }
             return false;
         }
         private string validHash(string strNormal)

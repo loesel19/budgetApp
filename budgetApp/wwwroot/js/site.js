@@ -5,7 +5,6 @@
 
 function checkUserSession() {
     var x;
-
     var arr = document.cookie.split(';');
     for (var i = 0; i < arr.length; i++) {
         var temp = arr[i].split("=");
@@ -16,7 +15,7 @@ function checkUserSession() {
     }
     if (x == null || x == "") {
         window.location = "/Home/SignIn";
-        alert("user was null")
+        alert("Please sign in. ")
         return false;
     }
 
@@ -25,7 +24,7 @@ function checkUserSession() {
     $.get(url, function (data) {
         if (data == false) {
             window.location = "/Home/SignIn";
-            alert("Not a valid session. Please sign in again. ")
+            alert("Not a valid session. Please sign in. ")
             return false;
         }
         return true;
@@ -46,7 +45,7 @@ function generateUserCookie(username, boo) {
 function generateSessionCookie() {
     
     var x;
-    
+    alert("in generate session cookie")
     var arr = document.cookie.split(';');
     for (var i = 0; i < arr.length; i++) {
         var temp = arr[i].split("=");
