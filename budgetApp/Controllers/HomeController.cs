@@ -62,7 +62,7 @@ namespace budgetApp.Controllers
                     {
                         if (reader.Read())
                         {
-                            GlobalVariables.UserID = int.Parse(reader["Id"].ToString());
+                            GlobalVariables.UserID = int.Parse(reader["Userid"].ToString());
                         }
                     } catch (Exception ex)
                     {
@@ -583,6 +583,10 @@ namespace budgetApp.Controllers
         public bool checkSession()
         {
             var x = validHash(Request.Cookies["user"]);
+            if (String.IsNullOrEmpty(x))
+            {
+                return false;
+            }
             if (Request.Cookies["validSession"].Equals(x))
             {
                 return true;
