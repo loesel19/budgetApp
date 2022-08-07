@@ -45,6 +45,10 @@ namespace budgetApp.Controllers
                      * and execute our sql... hopefully. */
                     //make an instance of our database object
                     clsDatabase objDB = new clsDatabase(config.GetValue<string>("DBConnString"));
+                    if (!generateSessionCookie())
+                    {
+                        return RedirectToAction("SignIn");
+                    }
                     //try to open the connection
                     if (!objDB.openConnection())
                     {
@@ -499,7 +503,7 @@ namespace budgetApp.Controllers
         {
             return false;
         }
-        private string validHash([FromQuery] string strNormal)
+        private string validHash(string strNormal)
         {
             /**
              * @name : validHash
@@ -521,6 +525,7 @@ namespace budgetApp.Controllers
             strValid = strHashed.Replace('\'', '!');
             strValid = strValid.Replace('\"', '?');
             strValid = strValid.Replace(';', '*');
+            strValid = strValid.Replace(' ', '.');
 
             return strValid;
         }
@@ -533,6 +538,27 @@ namespace budgetApp.Controllers
         {
             string x = Request.Cookies["validSession"];
             return x;
+        }
+        public bool generateSessionCookie()
+        {
+            var x = Request.Cookies["user"];
+            if (String.IsNullOrEmpty(x))
+            {
+                return false;
+            }
+            Response.Cookies.Append("validSession", validHash(x));
+            return true;
+        }
+        public bool checkSession()
+        {
+            var x = validHash(Request.Cookies["user"]);
+            if (Request.Cookies["validSession"].Equals(x))
+            {
+                return true;
+            }
+            GlobalVariables.UserID = -1;
+            GlobalVariables.GlobalUsername = "";
+            return false;
         }
     } 
 }

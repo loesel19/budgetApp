@@ -28,7 +28,7 @@
 <head>
     <link type="text/javascript" href="~/js/site.js" />
 </head>
-<body onload="checkSession()">
+<body onload="checkUserSession()">
 <div class="text-center">
     <h1 class="display-4">@ViewBag.Message</h1>
 </div>
@@ -90,11 +90,5 @@
             }
         }
         return true;
-    }
-    function checkSession(){
-        var x;
-        $.get("/Home/checkSessionCookie", new function(data) {
-            alert(data);
-        });
     }
 </script>

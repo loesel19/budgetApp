@@ -5,25 +5,32 @@
 
 function checkUserSession() {
     var x;
-    $.get("/Home/readUserCookie", function (data) {
-        x = data;
-    });
-    if (x == null) {
+
+    var arr = document.cookie.split(';');
+    for (var i = 0; i < arr.length; i++) {
+        var temp = arr[i].split("=");
+        if (temp[0] == "user") {
+            x = temp[1];
+            break;
+        }
+    }
+    if (x == null || x == "") {
+        window.location = "/Home/SignIn";
+        alert("user was null")
         return false;
     }
-    var y;
-    $.get("/Home/readSessionCookie",  function (data) {
-        y = data;
-    });
-    var url = "/Home/validHash?strNormal=" + x
-    $.get(url, null, function (data) {
-        if (y == data) {
-            return true;
-        }
-        return false;
-    });
-    return false;
+
+    var url = "/Home/checkSession";
     
+    $.get(url, function (data) {
+        if (data == false) {
+            window.location = "/Home/SignIn";
+            alert("Not a valid session. Please sign in again. ")
+            return false;
+        }
+        return true;
+
+    });
 }
 function generateUserCookie(username, boo) {
     if (boo) {
@@ -37,9 +44,9 @@ function generateUserCookie(username, boo) {
 }
 
 function generateSessionCookie() {
-    alert("in session cookie method")
+    
     var x;
-
+    
     var arr = document.cookie.split(';');
     for (var i = 0; i < arr.length; i++) {
         var temp = arr[i].split("=");
@@ -52,8 +59,13 @@ function generateSessionCookie() {
         alert("user was null")
         return false;
     }
-
-   var 
+    $.post("/Home/generateSessionCookie", function (data) {
+        if (data == null || data == false) {
+            alert("Could not start sesstion. ");
+        } else {
+            return true;
+        }
+    })
    
     return false;
 }

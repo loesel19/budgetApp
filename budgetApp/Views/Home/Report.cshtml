@@ -1,8 +1,10 @@
 ﻿@model budgetApp.Models.ReportModel
 <head>
+    <link type="text/javascript" href="/js/site.js" />
     <link rel="stylesheet" href="~/css/site.css" />
+    
 </head>
-<body onload="setEditVisibility(false)">
+<body onload="loadScript()">
 <h2>@ViewBag.Msg</h2>
 <form asp-controller="Home" method="post" id="reportForm" role="form">
     @Html.DropDownListFor(x => x.category, Model.categories)
@@ -79,5 +81,9 @@ function deleteEntry(e, id){
             return;
         }
     }
+}
+function loadScript(){
+    setEditVisibility(false);
+    checkUserSession()
 }
 </script>

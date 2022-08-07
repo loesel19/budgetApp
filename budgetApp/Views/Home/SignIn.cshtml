@@ -5,7 +5,7 @@
 </head>
 <body>
 <h2 style="color:red;">@ViewBag.Msg</h2>
-<form asp-controller="Home" method="post" id="signUpForm" role="form">
+<form asp-controller="Home" method="post" id="signUpForm" role="form" onsubmit="preSubmitCheck()">
 <p>Username: @Html.TextBoxFor(x=>x.username, new {@id="txtUsername"})</p>
 <p>Password: @Html.TextBoxFor(x=>x.password, new {@id="txtPassword", @type="password"})</p>
 <button type="button" onclick="preSubmitCheck()" class="btn btn-outline-success btn-lg">Sign In</button>
@@ -37,7 +37,9 @@ function preSubmitCheck(){
         }else{
             generateUserCookie(document.getElementById("txtUsername").value, false);
         }
-        generateSessionCookie();
+        if(!generateSessionCookie()){
+
+        }
         //submit the form
         document.getElementById("signUpForm").submit();
         return true;
