@@ -25,7 +25,10 @@
 }
 
 @model budgetApp.Models.EntryModel
-
+<head>
+    <link type="text/javascript" href="~/js/site.js" />
+</head>
+<body onload="checkUserSession()">
 <div class="text-center">
     <h1 class="display-4">@ViewBag.Message</h1>
 </div>
@@ -52,7 +55,6 @@
                 <th scope="col">@Html.TextAreaFor(x=>x.description, new {@style = "heigth: 80px; width: 200px;", @id="txtDesc"})</th>
             </tr>
             <tr>
-                <th scope="col">Date</th>
                 <th scope="col">Date other than today @Html.CheckBoxFor(x=>x.otherDate, new {@id="chkDate"})</th>
                 <th scope="col"><input type="date" name="date" id="dtpDate"/></th>
             </tr>
@@ -64,6 +66,7 @@
         @Html.ActionLink("View Reports", "Report", new {@class="btn btn-outline-secondary btn-lg", @style="font-size: 55;"})
     </div>
 
+    </body>
 <script>
 //make sure that all required fields have a value before sending them back
     

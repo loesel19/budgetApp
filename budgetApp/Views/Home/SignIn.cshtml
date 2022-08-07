@@ -1,14 +1,40 @@
 ﻿
 @model budgetApp.Models.UserModel
-
+<head>
+    <link type="text/javascript" href="/js/site.js" />
+</head>
+<body>
 <h2 style="color:red;">@ViewBag.Msg</h2>
-<form asp-controller="Home" method="post" id="signUpForm" role="form">
-<p>Username: @Html.TextBoxFor(x=>x.username, new {@id="txtUsername"})</p>
-<p>Password: @Html.TextBoxFor(x=>x.password, new {@id="txtPassword", @type="password"})</p>
-<button type="button" onclick="preSubmitCheck()" class="btn btn-outline-success btn-lg">Sign In</button>
-<p>Stay Signed in <input type="checkbox" id="chkRemember" /></p>
+<form asp-controller="Home" method="post" id="signUpForm" role="form" onsubmit="preSubmitCheck()">
+    <table class=table>
+        <tr>
+            <td>
+                <p>Username:</p>
+            </td>
+            <td>
+                @Html.TextBoxFor(x=>x.username, new {@id="txtUsername"})
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>Password:</p>
+            </td>
+            <td>
+                @Html.TextBoxFor(x=>x.password, new {@id="txtPassword", @type="password"})
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>Stay Signed in <input type="checkbox" id="chkRemember" /></p>
+            </td>
+            <td>
+                <button type="button" onclick="preSubmitCheck()" class="btn btn-outline-success btn-lg">Sign In</button>
+            </td>
+        </tr>
+        </table>
 </form>
 @Html.ActionLink("Sing Up", "signUp")
+</body>
 
 <script>
 function checkFields(){
@@ -29,10 +55,12 @@ function preSubmitCheck(){
     if(checkFields()){
         
         if(document.getElementById("chkRemember").checked){
-            const d = new Date();
-            d.setDate(d.getDate() + 30);
-            document.cookie = "username=" + document.getElementById("txtUsername").value + ";expires=" + d.toUTCString() + ";path=/"
-            alert("You will stay signed in for the next 30 days.")
+            generateUserCookie(document.getElementById("txtUsername").value, true);
+        }else{
+            generateUserCookie(document.getElementById("txtUsername").value, false);
+        }
+        if(!generateSessionCookie()){
+
         }
         //submit the form
         document.getElementById("signUpForm").submit();

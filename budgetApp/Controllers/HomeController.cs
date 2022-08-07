@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace budgetApp.Controllers
@@ -33,7 +34,7 @@ namespace budgetApp.Controllers
             {
                 try
                 {
-                    string username = Request.Cookies["username"].ToString();
+                    string username = Request.Cookies["user"].ToString();
                     /* user was previously signed in and wanted to be remembered, so we can sign them back in */
                     GlobalVariables.GlobalUsername = username;
                     /* we also want to get the userID for this user from the pgsql table. */
@@ -44,6 +45,11 @@ namespace budgetApp.Controllers
                      * and execute our sql... hopefully. */
                     //make an instance of our database object
                     clsDatabase objDB = new clsDatabase(config.GetValue<string>("DBConnString"));
+                    if (!generateSessionCookie())
+                    {
+                        // we try to generate a session cookie, but can't so there is no cookie for the user
+                        return RedirectToAction("SignIn");
+                    }
                     //try to open the connection
                     if (!objDB.openConnection())
                     {
@@ -56,7 +62,7 @@ namespace budgetApp.Controllers
                     {
                         if (reader.Read())
                         {
-                            GlobalVariables.UserID = int.Parse(reader["Id"].ToString());
+                            GlobalVariables.UserID = int.Parse(reader["Userid"].ToString());
                         }
                     } catch (Exception ex)
                     {
@@ -91,6 +97,12 @@ namespace budgetApp.Controllers
         public IActionResult Index([FromForm] EntryModel model)
         {
             /* we want to try to post the entry to our database */
+            //check to see if there is an open session for the user
+            if (!checkSession())
+            {
+                ViewBag.Message = "No open session, please sign out and sign back in. ";
+                return View();
+            }
             //first make a sql string
             if (String.IsNullOrEmpty(model.subCategory))
             {
@@ -163,6 +175,12 @@ namespace budgetApp.Controllers
         [HttpGet]
         public IActionResult Report()
         {
+            //check to see if there is an open session for the user
+            if (!checkSession())
+            {
+                ViewBag.Message = "No open session, please sign out and sign back in. ";
+                return View();
+            }
             ReportModel model = new ReportModel();
             return View(model);
         }
@@ -283,7 +301,8 @@ namespace budgetApp.Controllers
         [HttpPost]
         public IActionResult SignIn(UserModel model)
         {
-            string strSQL = "SELECT userID, username FROM users WHERE username = '" + model.username + "' AND password = '" + model.password + "';";
+           
+            string strSQL = "SELECT userID, username FROM users WHERE username = '" + model.username + "' AND password = '" + validHash(model.password) + "';";
             //make an instance of our db class.
             clsDatabase objDB = new clsDatabase(config.GetValue<string>("DBConnString"));
             //try to open the connection
@@ -349,12 +368,18 @@ namespace budgetApp.Controllers
         {
             /** This method 'signs the user out' right now we just delete the cookie that is stored in the browser,
              * eventually we will have to deal with whatever authentication method is used. */
+            //check to see if there is an open session for the user
+            if (!checkSession())
+            {
+                ViewBag.Message = "No open session, please sign out and sign back in. ";
+                return View();
+            }
             GlobalVariables.GlobalUsername = null;
             GlobalVariables.UserID = -1;
             /* we will also want to 'delete' the username cookie */
             try
             {
-                Response.Cookies.Delete("username");
+                Response.Cookies.Delete("user");
             } catch (Exception ex) { throw ex; }
 
             return RedirectToAction("Index");
@@ -407,8 +432,12 @@ namespace budgetApp.Controllers
             }
             else
             {
+                //close our datreader
+                sdr.Close();
+                //lets hash the password before storing it in the database
+                
                 /* we can sign up the new user */
-                strSQL = "INSERT INTO users (username, password) values ('" + model.username + "', '" + model.password + "');";
+                strSQL = "INSERT INTO users (username, password) values ('" + model.username + "', '" + validHash(model.password) + "');";
                 if(objDB.ExecuteSQLNonQuery(strSQL)){
                     /* user was signed up successfully */
                     ViewBag.Msg = "Account created succesfully please signin.";
@@ -434,6 +463,12 @@ namespace budgetApp.Controllers
             /* this method will be accessed through an ajax call in the report page. The user wants to delete a row from the database 
              * here we will have to encapsulate our sql commands in a npgsqlTransaction. */
             //make an instance of our db object
+            //check to see if there is an open session for the user
+            if (!checkSession())
+            {
+                ViewBag.Message = "No open session, please sign out and sign back in. ";
+                return false;
+            }
             clsDatabase objDB = new clsDatabase(config.GetValue<string>("DBConnString"));
 
             //lets get a connection from our database class
@@ -491,6 +526,73 @@ namespace budgetApp.Controllers
         }
         public bool editEntry([FromQuery] string date, [FromQuery] string description, [FromQuery] string amount, [FromQuery] string category, [FromQuery] string subcategory)
         {
+            //check to see if there is an open session for the user
+            if (!checkSession())
+            {
+                ViewBag.Message = "No open session, please sign out and sign back in. ";
+                return false;
+            }
+            return false;
+        }
+        private string validHash(string strNormal)
+        {
+            /**
+             * @name : validHash
+             * @author : Andrew A. Loesel
+             * @params : strHash - the hashed string that we need to make sure is valid
+             * @returns : strValid - a valid hashed string
+             * @purpose : The purpose of this method is to hash the passowrd and then make sure the hashed version of the password we send to the database does not contain any characters
+             *            that could mess up our database, for example if the password we try to send is x23's4 the ' will make the database think that s4 is some random
+             *            garbage and will not accept any transactions with that string.
+             *            */
+            string strValid = "";
+            
+            byte[] hashPassword;
+            using (HashAlgorithm hash = SHA256.Create())
+            {
+                hashPassword = hash.ComputeHash(Encoding.UTF8.GetBytes(strNormal));
+            }
+            var strHashed = System.Text.Encoding.Default.GetString(hashPassword);
+            strValid = strHashed.Replace('\'', '!');
+            strValid = strValid.Replace('\"', '?');
+            strValid = strValid.Replace(';', '*');
+            strValid = strValid.Replace(' ', '.');
+
+            return strValid;
+        }
+        public string readUserCookie()
+        {
+            string x = Request.Cookies["user"];
+            return x;
+        }
+        public string readSessionCookie()
+        {
+            string x = Request.Cookies["validSession"];
+            return x;
+        }
+        public bool generateSessionCookie()
+        {
+            var x = Request.Cookies["user"];
+            if (String.IsNullOrEmpty(x))
+            {
+                return false;
+            }
+            Response.Cookies.Append("validSession", validHash(x));
+            return true;
+        }
+        public bool checkSession()
+        {
+            var x = validHash(Request.Cookies["user"]);
+            if (String.IsNullOrEmpty(x))
+            {
+                return false;
+            }
+            if (Request.Cookies["validSession"].Equals(x))
+            {
+                return true;
+            }
+            GlobalVariables.UserID = -1;
+            GlobalVariables.GlobalUsername = "";
             return false;
         }
     } 
