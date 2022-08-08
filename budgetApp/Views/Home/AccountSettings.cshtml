@@ -4,6 +4,7 @@
     <link type="text/css" href="~/css/site.css" />
 </head>
 <body onload="checkUserSession()">
+    <h2>@ViewBag.message</h2>
     <form asp-controller="Home" method="post" onsubmit="return checkPwdSetting()" role="form">
     <table class="table">
         <tr>
@@ -11,7 +12,7 @@
                 User
             </td>
             <td>
-                @Html.LabelFor(x=>x.Username, @Model.Username)
+                @Html.Label(@GlobalVariables.GlobalUsername)
             </td>
         </tr>
         <tr>

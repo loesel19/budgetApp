@@ -72,7 +72,7 @@ function checkPwdSetting(){
     var strNew, strConfirm;
     strNew = document.getElementById("txtNewPwd").value;
     strConfirm = document.getElementById("txtConfirmPwd").value;
-    if (!strNew == strConfirm) {
+    if (!strNew == strConfirm || strNew == "" || strNew == null) {
         return false
     }
     return true;
