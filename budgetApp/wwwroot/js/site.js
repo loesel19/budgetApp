@@ -68,3 +68,12 @@ function generateSessionCookie() {
    
     return false;
 }
+function checkPwdSetting(){
+    var strNew, strConfirm;
+    strNew = document.getElementById("txtNewPwd").value;
+    strConfirm = document.getElementById("txtConfirmPwd").value;
+    if (!strNew == strConfirm) {
+        return false
+    }
+    return true;
+}

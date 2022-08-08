@@ -458,6 +458,18 @@ namespace budgetApp.Controllers
                 }
             }
         }
+        [HttpGet]
+        public IActionResult AccountSettings()
+        {
+            ChangePasswordModel model = new ChangePasswordModel();
+            model.Username = GlobalVariables.GlobalUsername;
+            return View(model);
+        }
+        [HttpPost]
+        public IActionResult AccountSettings(ChangePasswordModel model)
+        {
+            return View();
+        }
         public bool deleteEntry([FromQuery] int entryID)
         {
             /* this method will be accessed through an ajax call in the report page. The user wants to delete a row from the database 

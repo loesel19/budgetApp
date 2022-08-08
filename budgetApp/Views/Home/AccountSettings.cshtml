@@ -1,0 +1,48 @@
+﻿@model budgetApp.Models.ChangePasswordModel
+<head>
+    <link type="text/javascript" href="~/js/site.js" />
+    <link type="text/css" href="~/css/site.css" />
+</head>
+<body onload="checkUserSession()">
+    <form asp-controller="Home" method="post" onsubmit="return checkPwdSetting()" role="form">
+    <table class="table">
+        <tr>
+            <td>
+                User
+            </td>
+            <td>
+                @Html.LabelFor(x=>x.Username, @Model.Username)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Enter Old Password
+            </td>
+            <td>
+                @Html.TextBoxFor(x=>x.OldPassword, new {@type="password"})
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Enter New Password
+            </td>
+            <td>
+                @Html.TextBoxFor(x=>x.NewPassword, new {@type="password", @id="txtNewPwd"})
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Confirm New Password
+            </td>
+            <td>
+                <input type="password" id="txtConfirmPwd"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button type="submit" class="btn btn-outline-primary btn-lg">Confirm</button>
+            </td>
+        </tr>
+    </table>
+    </form>
+</body>
