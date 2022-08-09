@@ -45,7 +45,6 @@ function generateUserCookie(username, boo) {
 function generateSessionCookie() {
     
     var x;
-    alert("in generate session cookie")
     var arr = document.cookie.split(';');
     for (var i = 0; i < arr.length; i++) {
         var temp = arr[i].split("=");
@@ -72,7 +71,12 @@ function checkPwdSetting(){
     var strNew, strConfirm;
     strNew = document.getElementById("txtNewPwd").value;
     strConfirm = document.getElementById("txtConfirmPwd").value;
-    if (!strNew == strConfirm || strNew == "" || strNew == null) {
+    if (strNew == "" || strNew == null) {
+        alert("Please enter a new password. ")
+        return false
+    }
+    if (strNew != strConfirm) {
+        alert("New passwords must match. ")
         return false
     }
     return true;

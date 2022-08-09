@@ -9,15 +9,18 @@
     <table class="table">
         <tr>
             <td>
-                User
+                <p>User</p>
             </td>
             <td>
                 @Html.Label(@GlobalVariables.GlobalUsername)
             </td>
+            <td>
+                <button type="button" onclick="ShowPwd(event, this)" class="btn btn-outline-secondary btn-lg">Show Passwords</button>
+            </td>
         </tr>
         <tr>
             <td>
-                Enter Old Password
+                <p>Enter Old Password</p>
             </td>
             <td>
                 @Html.TextBoxFor(x=>x.OldPassword, new {@type="password"})
@@ -25,7 +28,7 @@
         </tr>
         <tr>
             <td>
-                Enter New Password
+                <p>Enter New Password</p>
             </td>
             <td>
                 @Html.TextBoxFor(x=>x.NewPassword, new {@type="password", @id="txtNewPwd"})
@@ -33,7 +36,7 @@
         </tr>
         <tr>
             <td>
-                Confirm New Password
+                <p>Confirm New Password</p>
             </td>
             <td>
                 <input type="password" id="txtConfirmPwd"/>
@@ -41,9 +44,25 @@
         </tr>
         <tr>
             <td>
-                <button type="submit" class="btn btn-outline-primary btn-lg">Confirm</button>
+                <button type="submit" class="btn btn-outline-secondary btn-lg">Confirm</button>
             </td>
         </tr>
     </table>
     </form>
+    <input type="checkbox" id="chkShow" value="false"/>
 </body>
+<script>
+function ShowPwd (e, t) {
+    var chkShow = document.getElementById("chkShow");
+    var txtNew = document.getElementById("txtNewPwd");
+    if(!chkShow.checked){
+        txtNew.setAttribute("type", "text");
+        chkShow.checked = true;
+        t.value = "Hide Password";
+    }else{
+        txtNew.setAttribute("type", "password");
+        chkShow.checked = false;
+        t.value = "Show Password";
+    }
+}
+</script>

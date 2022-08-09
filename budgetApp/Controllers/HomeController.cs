@@ -376,10 +376,11 @@ namespace budgetApp.Controllers
             }
             GlobalVariables.GlobalUsername = null;
             GlobalVariables.UserID = -1;
-            /* we will also want to 'delete' the username cookie */
+            /* we will also want to 'delete' the username and session cookie */
             try
             {
                 Response.Cookies.Delete("user");
+                Response.Cookies.Delete("validSession");
             } catch (Exception ex) { throw ex; }
 
             return RedirectToAction("Index");
@@ -479,7 +480,7 @@ namespace budgetApp.Controllers
             try
             {
                 sdr.Read();
-                if(strHashPwd == sdr["password"])
+                if(strHashPwd.Equals(sdr["password"].ToString()))
                 {
                     sdr.Close();
                     string strNewPwd = validHash(model.NewPassword);
