@@ -224,18 +224,10 @@ namespace budgetApp.Controllers
             }
             //create a data reader based off the query we built.
             NpgsqlDataReader sdr = objDB.ExecuteDataReader(sbSQL.ToString());
-            /* lets start building our table, put in the headers first. Space them nicely as well */
-            StringBuilder strTable = new StringBuilder("<table class=\"table\" id=\"reportTable\" style=\"table-layout: fixed; border-collapes: collapse;\">");
-            strTable.AppendLine("   <tr>");
-            strTable.AppendLine("       <th class=\"th-md\">entryID</th>");
-            strTable.AppendLine("       <th class=\"th-md\">Amount</th>");
-            strTable.AppendLine("       <th class=\"th-md\">Category</th>");
-            strTable.AppendLine("       <th class=\"th-md\">SubCategory</th>");
-            strTable.AppendLine("       <th class=\"th-md\">Description</th>");
-            strTable.AppendLine("       <th class=\"th-md\">Date</th>");
-            strTable.AppendLine("       <th class=\"th-md\" id=\"editStateHead\"><img src=\"/lib/images/lock.jpg\" class=\"img-header\" onclick=\"checkEditState()\"/></th>");
-            strTable.AppendLine("   </tr>");
-
+            /* lets start building our table. We will do the headers last since I want to have the total spent and net toward the top. 
+             * Space them nicely as well */
+            StringBuilder strTbody = new StringBuilder();
+            strTbody.AppendLine("   <tbody>");
             /* now we need to loop through all the results returned by our datareader, and add them as a row to the table */
             if (sdr == null)
             {
@@ -253,7 +245,7 @@ namespace budgetApp.Controllers
                 /* we can check the category to both set the background color, and to keep total gross and total net spending */
                 if(sdr["Category"].ToString() == "Income")
                 {
-                    strTable.AppendLine("<tr style=\"background-color:#00FF7F;\">");
+                    strTbody.AppendLine("       <tr style=\"background-color:#0d6efd;\">");
                     try
                     {
                         income += double.Parse(sdr["Amount"].ToString());
@@ -263,7 +255,7 @@ namespace budgetApp.Controllers
                 }
                 else
                 {
-                    strTable.AppendLine("   <tr style=\"background-color:#CD5C5C;\">");
+                    strTbody.AppendLine("       <tr style=\"background-color:#adb5bd;\">");
                     try
                     {
                         spent += double.Parse(sdr["Amount"].ToString());
@@ -273,25 +265,43 @@ namespace budgetApp.Controllers
                         //nothing to do if amount is null. it shouldn't happen since we validate before entering into the database
                     }
                 }
-                strTable.AppendLine("       <td class=\"td-md\" id=\"entryID" + count + "\">" + sdr["entryID"] + "</td>");
-                strTable.AppendLine("       <td class=\"td-md\" id=\"amt" + count + "\">$" + sdr["Amount"] + "</td>");
-                strTable.AppendLine("       <td class=\"td-md\" id=\"cat" + count + "\">" + sdr["Category"] + "</td>");
-                strTable.AppendLine("       <td class=\"td-md\" id=\"sub" + count + "\">" + sdr["Subcategory"] + "</td>");
-                strTable.AppendLine("       <td class=\"td-md\" id=\"des" + count + "\">" + sdr["Description"] + "</td>");
-                strTable.AppendLine("       <td class=\"td-md\" id=\"crt" + count + "\">" + sdr["Createdtime"] + "</td>");
-                strTable.AppendLine("       <td class=\"td-md\" id=\"colEdit" + count + "\"><input type=\"button\" class=\"btn btn-secondary btn-sm btn-row\" onclick=\"editEntry(event, this.id)\" id=\"edt" + count + "\"/>" +
+                strTbody.AppendLine("           <td class=\"td-md\" id=\"entryID" + count + "\">" + sdr["entryID"] + "</td>");
+                strTbody.AppendLine("           <td class=\"td-md\" id=\"amt" + count + "\">$" + sdr["Amount"] + "</td>");
+                strTbody.AppendLine("           <td class=\"td-md\" id=\"cat" + count + "\">" + sdr["Category"] + "</td>");
+                strTbody.AppendLine("           <td class=\"td-md\" id=\"sub" + count + "\">" + sdr["Subcategory"] + "</td>");
+                strTbody.AppendLine("           <td class=\"td-md\" id=\"des" + count + "\">" + sdr["Description"] + "</td>");
+                strTbody.AppendLine("           <td class=\"td-md\" id=\"crt" + count + "\">" + sdr["Createdtime"] + "</td>");
+                strTbody.AppendLine("           <td class=\"td-md\" id=\"colEdit" + count + "\"><input type=\"button\" class=\"btn btn-secondary btn-sm btn-row\" onclick=\"editEntry(event, this.id)\" id=\"edt" + count + "\"/>" +
                     " &nbsp <input type=\"button\" class=\"btn btn-secondary btn-sm btn-row\" onclick=\"deleteEntry(event, this.id)\" id=\"del" + count + "\"/>");
-                strTable.AppendLine("   </tr>");
+                strTbody.AppendLine("   </tr>");
                 //increment counter
                 count++;
             }
+            //close the tbody tag
+            strTbody.AppendLine("</tbody>");
             //dont forget to close the table tag
-            strTable.AppendLine("</table>");
-            //now we need to set the totals as well
-            model.strHTML = "<table><tr><th class=\"th-md\">Total Spent</th>" +
-                "<td>&nbsp$" + spent + "</td>" + "<th class=\"th-md\">Total Net</th>" +
-                "<td>&nbsp$" + (income - spent) + "</td></tr></table>";
-            model.strHTMLTable = strTable.ToString();
+            strTbody.AppendLine("</table>");
+            //now we do the table head since we can put the total spent and net in our headers
+            StringBuilder strThead = new StringBuilder("<table class=\"table table-hover\" id=\"reportTable\" style=\"table-layout: fixed; border-collapes: collapse;\">");
+            strThead.AppendLine("   <thead>");
+            strThead.AppendLine("       <tr>");
+            strThead.AppendLine("           <th class=\"th-md\">Spent</th>");
+            strThead.AppendLine("           <td>$" + spent + "</td>");
+            strThead.AppendLine("           <th class=\"th-md\">Total net</th>");
+            strThead.AppendLine("           <td>$" + (income - spent) + "</td>");
+            strThead.AppendLine("       </tr>");
+            strThead.AppendLine("       <tr>");
+            strThead.AppendLine("           <th class=\"th-md\">entryID</th>");
+            strThead.AppendLine("           <th class=\"th-md\">Amount</th>");
+            strThead.AppendLine("           <th class=\"th-md\">Category</th>");
+            strThead.AppendLine("           <th class=\"th-md\">SubCategory</th>");
+            strThead.AppendLine("           <th class=\"th-md\">Description</th>");
+            strThead.AppendLine("           <th class=\"th-md\">Date</th>");
+            strThead.AppendLine("           <th class=\"th-md\" id=\"editStateHead\"><img src=\"/lib/images/lock.jpg\" class=\"img-header\" onclick=\"checkEditState()\"/></th>");
+            strThead.AppendLine("       </tr>");
+            strThead.AppendLine("   </thead>");
+            strThead.AppendLine();
+            model.strHTMLTable = strThead.ToString() + strTbody.ToString();
             //clean up loose ends with the datareader, connection and lastly the object.
             sdr.Close();
             objDB.closeConnection();

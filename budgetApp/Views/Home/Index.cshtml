@@ -27,6 +27,7 @@
 @model budgetApp.Models.EntryModel
 <head>
     <link type="text/javascript" href="~/js/site.js" />
+    <link type="text/css" href="~/css/site.css" />
 </head>
 <body onload="checkUserSession()">
 <div class="text-center">
@@ -39,27 +40,27 @@
     <div>
         <table class="table">
             <tr>
-                <th scope="col">Amount($)</th>
-                <th scope="col">@Html.TextBoxFor(x=>x.amount, new {@style = "width: 200px;",@id="txtAmt", @type="number", @min="0.01",@step="0.01", @value="0"})</th>
+                <td scope="col">Amount($)</td>
+                <td scope="col">@Html.TextBoxFor(x=>x.amount, new {@style = "width: 200px;",@id="txtAmt", @type="number", @min="0.01",@step="0.01", @value="0"})</td>
             </tr>
             <tr>
-                <th scope="col">Category</th>
-                <th scope="col">@Html.DropDownListFor(x=>x.category, categories, new {@style = "width: 200px;", @id="ddlCat"})</th>
+                <td scope="col">Category</td>
+                <td scope="col">@Html.DropDownListFor(x=>x.category, categories, new {@style = "width: 200px;", @id="ddlCat"})</td>
             </tr>
             <tr>
-                <th scope="col">Sub Category(optional)</th>
-                <th scope="col">@Html.TextBoxFor(x=>x.subCategory, new {@style = "width: 200px;", @id="txtSub"})</th>
+                <td scope="col">Sub Category(optional)</td>
+                <td scope="col">@Html.TextBoxFor(x=>x.subCategory, new {@style = "width: 200px;", @id="txtSub"})</td>
             </tr>
             <tr>
-                <th scope="col">Description(Optional)</th>
-                <th scope="col">@Html.TextAreaFor(x=>x.description, new {@style = "heigth: 80px; width: 200px;", @id="txtDesc"})</th>
+                <td scope="col">Description(Optional)</td>
+                <td scope="col">@Html.TextAreaFor(x=>x.description, new {@style = "heigth: 80px; width: 200px;", @id="txtDesc"})</td>
             </tr>
             <tr>
-                <th scope="col">Date other than today @Html.CheckBoxFor(x=>x.otherDate, new {@id="chkDate"})</th>
-                <th scope="col"><input type="date" name="date" id="dtpDate"/></th>
+                <td scope="col">Date other than today @Html.CheckBoxFor(x=>x.otherDate, new {@id="chkDate"})</td>
+                <td scope="col"><input type="date" name="date" id="dtpDate"/></td>
             </tr>
         </table>
-        <button type="submit" class="btn btn-outline-success btn-lg">Submit</button>
+        <button type="submit" class="btn btn-outline-primary btn-lg">Submit</button>
     </div>
     </form>
     <div>

@@ -6,12 +6,30 @@
 </head>
 <body onload="loadScript()">
 <h2>@ViewBag.Msg</h2>
+
 <form asp-controller="Home" method="post" id="reportForm" role="form">
-    @Html.DropDownListFor(x => x.category, Model.categories)
-    @Html.DropDownListFor(x => x.period, Model.periods)
-    <button type="submit" class="btn btn-outline-primary">View</button>
+    <table class="table table-sm">
+        <tr>
+            <td>
+                Category
+            </td>
+            <td>
+                @Html.DropDownListFor(x => x.category, Model.categories)
+            </td>
+            <td>
+                Period
+            </td>
+            <td>
+                @Html.DropDownListFor(x => x.period, Model.periods)
+            </td>
+            <td>
+                <button type="submit" class="btn btn-outline-primary">View</button>
+            </td>
+        </tr>
+
+    </table>
+    
 </form>
-@Html.Raw(Model.strHTML)
 @Html.Raw(Model.strHTMLTable)
 <input type="checkbox" id="chkEditable" value="false" hidden />
 </body>
