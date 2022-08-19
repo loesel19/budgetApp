@@ -10,8 +10,8 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3" style="margin-top: 0;">
+            <div class="container-fluid" style="background-color: #0275d8;">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">budgetApp</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -25,11 +25,20 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                    </ul>
-                    <ul class="navbar-nav float-end justify-content-between navbar-collapse"
-                    <li class="nav-item text-light">Hello @GlobalVariables.GlobalUsername </li> &nbsp;
                         <li class="nav-item">
-                            <button class="btn btn-danger" onclick=location.href='@Url.Action("SignOut","Home")'>Sign Out</button
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Report">Reports</a>
+                        </li>
+                    </ul>
+                    
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="navbar-brand">
+                            Hello @GlobalVariables.GlobalUsername 
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="navbar-brand">
+                            <a class="navbar-brand" href="/Home/AccountSettings">Settings</a>
+                            <button class="btn btn-outline-light" onclick=location.href='@Url.Action("SignOut","Home")'>Sign Out</button>
                         </li>
                     </ul>
                 </div>

@@ -1,5 +1,6 @@
 html {
   font-size: 14px;
+  margin: 0;
 }
 
 @media (min-width: 768px) {
@@ -11,10 +12,11 @@ html {
 html {
   position: relative;
   min-height: 100%;
+  margin: x;
 }
-
 body {
   margin-bottom: 60px;
+  margin-top: 0;
 }
 .th-md {
     max-width: 20%;
@@ -46,4 +48,8 @@ body {
 .btn-row {
     width: 20%;
     height: auto;
+}
+
+header h1{
+    margin: 0;
 }

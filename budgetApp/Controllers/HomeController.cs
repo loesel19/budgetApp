@@ -376,10 +376,11 @@ namespace budgetApp.Controllers
             }
             GlobalVariables.GlobalUsername = null;
             GlobalVariables.UserID = -1;
-            /* we will also want to 'delete' the username cookie */
+            /* we will also want to 'delete' the username and session cookie */
             try
             {
                 Response.Cookies.Delete("user");
+                Response.Cookies.Delete("validSession");
             } catch (Exception ex) { throw ex; }
 
             return RedirectToAction("Index");
@@ -457,6 +458,55 @@ namespace budgetApp.Controllers
                     return View();
                 }
             }
+        }
+        [HttpGet]
+        public IActionResult AccountSettings()
+        {
+            ChangePasswordModel model = new ChangePasswordModel();
+            return View(model);
+        }
+        [HttpPost]
+        public IActionResult AccountSettings(ChangePasswordModel model)
+        {
+            string strSql = "Select password from users where username = '" + GlobalVariables.GlobalUsername + "';";
+            string strHashPwd = validHash(model.OldPassword);
+            clsDatabase objDb = new clsDatabase(config["DBConnString"]);
+            if (!objDb.openConnection())
+            {
+                ViewBag.message = "Failed to connect to database";
+                return View(model);
+            }
+            NpgsqlDataReader sdr = objDb.ExecuteDataReader(strSql);
+            try
+            {
+                sdr.Read();
+                if(strHashPwd.Equals(sdr["password"].ToString()))
+                {
+                    sdr.Close();
+                    string strNewPwd = validHash(model.NewPassword);
+                    if (String.IsNullOrEmpty(strNewPwd))
+                    {
+                        ViewBag.message = "Something is wrong with the new password. ";
+                        return View();
+                    }
+                    string strUpdate = "UPDATE Users set password = '" + strNewPwd + "';";
+                    if (!objDb.ExecuteSQLNonQuery(strUpdate))
+                    {
+                        ViewBag.message = "Could not update the password. ";
+                    }
+                    else
+                    {
+                        ViewBag.message = "Sucessfully changed password.";
+                    }
+
+                }
+            }catch (Exception ex)
+            {
+                ViewBag.message = "An unexpected error occurred. ";
+            }
+            objDb.closeConnection();
+            objDb.Dispose();
+            return View();
         }
         public bool deleteEntry([FromQuery] int entryID)
         {
