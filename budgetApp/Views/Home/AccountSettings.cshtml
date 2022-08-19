@@ -14,16 +14,13 @@
             <td>
                 @Html.Label(@GlobalVariables.GlobalUsername)
             </td>
-            <td>
-                <button type="button" onclick="ShowPwd(event, this)" class="btn btn-outline-secondary btn-lg">Show Passwords</button>
-            </td>
         </tr>
         <tr>
             <td>
                 <p>Enter Old Password</p>
             </td>
             <td>
-                @Html.TextBoxFor(x=>x.OldPassword, new {@type="password"})
+                @Html.TextBoxFor(x=>x.OldPassword, new {@type="password", @id="txtPwd"})
             </td>
         </tr>
         <tr>
@@ -44,25 +41,45 @@
         </tr>
         <tr>
             <td>
-                <button type="submit" class="btn btn-outline-secondary btn-lg">Confirm</button>
+                <button type="submit" class="btn btn-outline-primary btn-lg">Confirm</button>
+            </td>
+            <td>
+                <button type="button" onclick="ShowPwd(event, this)" class="btn btn-outline-secondary btn-lg">Show Passwords</button>
             </td>
         </tr>
     </table>
     </form>
-    <input type="checkbox" id="chkShow" value="false"/>
+    <input type="checkbox" id="chkShow" value="false" hidden/>
 </body>
 <script>
 function ShowPwd (e, t) {
+    /** #Purpose : function will be used to either show passwords as plain text
+      * or as passwords depending on how the current state of the input fields.
+      * #params : e - the event that triggered this function call.
+      *           t - the object that triggered the event.
+    /* this checkbox is used so that we know if we need to hide or show the text. 
+     It is a hidden element so the user can't see or interact with it. */
     var chkShow = document.getElementById("chkShow");
+    //get our three password text boxes
     var txtNew = document.getElementById("txtNewPwd");
+    var txtCon = document.getElementById("txtConfirmPwd");
+    var txtOld = document.getElementById("txtPwd");
     if(!chkShow.checked){
+        //in this case we want to show the passwords
+        //just setattribute type to text
         txtNew.setAttribute("type", "text");
+        txtCon.setAttribute("type", "text");
+        txtOld.setAttribute("type", "text");
         chkShow.checked = true;
-        t.value = "Hide Password";
+        //we want to change the text of the button
+        t.innerHTML = "Hide Passwords";
     }else{
+        //hide passwords, set attirbute type to password
         txtNew.setAttribute("type", "password");
+        txtCon.setAttribute("type", "password");
+        txtOld.setAttribute("type", "password");
         chkShow.checked = false;
-        t.value = "Show Password";
+        t.innerHTML = "Show Passwords";
     }
 }
 </script>
