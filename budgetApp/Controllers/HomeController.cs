@@ -243,9 +243,10 @@ namespace budgetApp.Controllers
             while (sdr.Read())
             {
                 /* we can check the category to both set the background color, and to keep total gross and total net spending */
+                strTbody.AppendLine("<div id=\"div" + count + "\" class=\"div-popup\"><button class=\"btn btn-danger\">Del</button></div>");
                 if(sdr["Category"].ToString() == "Income")
                 {
-                    strTbody.AppendLine("       <tr style=\"background-color:#0d6efd;\">");
+                    strTbody.AppendLine("       <tr style=\"background-color:#0d6efd;\" id=\"tr" + count + "\" onclick=\"popup(" + count + ")\">");
                     try
                     {
                         income += double.Parse(sdr["Amount"].ToString());
@@ -255,7 +256,7 @@ namespace budgetApp.Controllers
                 }
                 else
                 {
-                    strTbody.AppendLine("       <tr style=\"background-color:#adb5bd;\">");
+                    strTbody.AppendLine("       <tr style=\"background-color:#adb5bd;\" id=\"tr" + count + "\" onclick=\"popup("+ count + ")\">");
                     try
                     {
                         spent += double.Parse(sdr["Amount"].ToString());
@@ -265,7 +266,7 @@ namespace budgetApp.Controllers
                         //nothing to do if amount is null. it shouldn't happen since we validate before entering into the database
                     }
                 }
-                strTbody.AppendLine("           <td class=\"td-md\" id=\"entryID" + count + "\">" + sdr["entryID"] + "</td>");
+                strTbody.AppendLine("           <td class=\"td-md\" id=\"entryID" + count + "\" hidden>" + sdr["entryID"] + "</td>");
                 strTbody.AppendLine("           <td class=\"td-md\" id=\"amt" + count + "\">$" + sdr["Amount"] + "</td>");
                 strTbody.AppendLine("           <td class=\"td-md\" id=\"cat" + count + "\">" + sdr["Category"] + "</td>");
                 strTbody.AppendLine("           <td class=\"td-md\" id=\"sub" + count + "\">" + sdr["Subcategory"] + "</td>");
@@ -291,7 +292,7 @@ namespace budgetApp.Controllers
             strThead.AppendLine("           <td>$" + (income - spent) + "</td>");
             strThead.AppendLine("       </tr>");
             strThead.AppendLine("       <tr>");
-            strThead.AppendLine("           <th class=\"th-md\">entryID</th>");
+            strThead.AppendLine("           <th class=\"th-md\" hidden>entryID</th>");
             strThead.AppendLine("           <th class=\"th-md\">Amount</th>");
             strThead.AppendLine("           <th class=\"th-md\">Category</th>");
             strThead.AppendLine("           <th class=\"th-md\">SubCategory</th>");

@@ -57,3 +57,7 @@ header h1{
 h2{
     font-size: 20px;
 }
+.div-popup{
+    position: absolute;
+    display: none;
+}

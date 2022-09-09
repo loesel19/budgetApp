@@ -100,6 +100,14 @@ function deleteEntry(e, id){
         }
     }
 }
+function popup(count){
+    //we want to have a popup right by the clicked on table row that will have a delete and edit button
+    //get row
+    var div = document.getElementById("div" + count);
+    div.style.display="block;";
+    alert(div)
+   
+}
 function loadScript(){
     checkUserSession();
     setEditVisibility(false);
