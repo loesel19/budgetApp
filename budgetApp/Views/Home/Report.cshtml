@@ -8,17 +8,17 @@
 <h2>@ViewBag.Msg</h2>
 
 <form asp-controller="Home" method="post" id="reportForm" role="form">
-    <table class="table table-sm">
+    <table class="table table-sm" id="tblReport" style="width: 75%;">
         <tr>
-            <td>
+            <th class="th-md">
                 Category
-            </td>
+            </th>
             <td>
                 @Html.DropDownListFor(x => x.category, Model.categories)
             </td>
-            <td>
+            <th class="th-md">
                 Period
-            </td>
+            </th>
             <td>
                 @Html.DropDownListFor(x => x.period, Model.periods)
             </td>
@@ -89,10 +89,10 @@ function deleteEntry(e, id){
             var url = "deleteEntry?entryID=" + entryID;
             $.post(url, function(data){
                 if(data){
-                    alert("entry has been deleted... or this will work once I do the npgsqlTransaction correctly.");
+                    alert("Entry has been deleted.");
                     location.reload();
                 }else{
-                    alert("something went wrong, entry not deleted.");
+                    alert("Something went wrong, entry not deleted.");
                 }
             });
         }else{
@@ -111,5 +111,7 @@ function popup(count){
 function loadScript(){
     checkUserSession();
     setEditVisibility(false);
+    var hdnTbl = document.getElementById("hdnTbl")
+    
 }
 </script>
