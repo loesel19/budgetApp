@@ -243,7 +243,7 @@ namespace budgetApp.Controllers
             while (sdr.Read())
             {
                 /* we can check the category to both set the background color, and to keep total gross and total net spending */
-                strTbody.AppendLine("<div id=\"div" + count + "\" class=\"div-popup\"><button class=\"btn btn-danger\">Del</button></div>");
+                //strTbody.AppendLine("<div id=\"div" + count + "\" class=\"div-popup\"><button class=\"btn btn-danger\">Del</button></div>");
                 if(sdr["Category"].ToString() == "Income")
                 {
                     strTbody.AppendLine("       <tr style=\"background-color:#0d6efd;\" id=\"tr" + count + "\" onclick=\"popup(" + count + ")\">");
@@ -272,8 +272,8 @@ namespace budgetApp.Controllers
                 strTbody.AppendLine("           <td class=\"td-md\" id=\"sub" + count + "\">" + sdr["Subcategory"] + "</td>");
                 strTbody.AppendLine("           <td class=\"td-md\" id=\"des" + count + "\">" + sdr["Description"] + "</td>");
                 strTbody.AppendLine("           <td class=\"td-md\" id=\"crt" + count + "\">" + sdr["Createdtime"] + "</td>");
-                strTbody.AppendLine("           <td class=\"td-md\" id=\"colEdit" + count + "\"><input type=\"button\" class=\"btn btn-secondary btn-sm btn-row\" onclick=\"editEntry(event, this.id)\" id=\"edt" + count + "\"/>" +
-                    " &nbsp <input type=\"button\" class=\"btn btn-secondary btn-sm btn-row\" onclick=\"deleteEntry(event, this.id)\" id=\"del" + count + "\"/>");
+                strTbody.AppendLine("           <td class=\"td-md\" id=\"colEdit" + count + "\" style=\"display: none;\"><input type=\"button\" class=\"btn btn-warning btn-sm btn-row\" onclick=\"editEntry(event, this.id)\" id=\"edt" + count + "\"/>" +
+                    " &nbsp <input type=\"button\" class=\"btn btn-danger btn-sm btn-row\" onclick=\"deleteEntry(event, this.id)\" id=\"del" + count + "\"/>");
                 strTbody.AppendLine("   </tr>");
                 //increment counter
                 count++;
@@ -298,7 +298,7 @@ namespace budgetApp.Controllers
             strThead.AppendLine("           <th class=\"th-md\">SubCategory</th>");
             strThead.AppendLine("           <th class=\"th-md\">Description</th>");
             strThead.AppendLine("           <th class=\"th-md\">Date</th>");
-            strThead.AppendLine("           <th class=\"th-md\" id=\"editStateHead\"><img src=\"/lib/images/lock.jpg\" class=\"img-header\" onclick=\"checkEditState()\"/></th>");
+            //strThead.AppendLine("           <th class=\"th-md\" id=\"editStateHead\"><img src=\"/lib/images/lock.jpg\" class=\"img-header\" onclick=\"checkEditState()\"/></th>");
             strThead.AppendLine("       </tr>");
             strThead.AppendLine("   </thead>");
             strThead.AppendLine();

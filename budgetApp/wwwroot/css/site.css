@@ -47,7 +47,7 @@ body {
 }
 .btn-row {
     width: 20%;
-    height: auto;
+    height: 20%;
 }
 
 header h1{
@@ -58,6 +58,6 @@ h2{
     font-size: 20px;
 }
 .div-popup{
-    position: absolute;
+    position: relative;
     display: none;
 }

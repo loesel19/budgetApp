@@ -31,37 +31,18 @@
     
 </form>
 @Html.Raw(Model.strHTMLTable)
-<input type="checkbox" id="chkEditable" value="false" hidden />
 </body>
 <script>
-function checkEditState() {
-    if(document.getElementById("chkEditable").checked){
-        document.getElementById("editStateHead").innerHTML = "<img src=\"/lib/images/lock.jpg\" class=\"img-header\" onclick=\"checkEditState()\"/>"
-        //flip checkbox
-        document.getElementById("chkEditable").checked = false;
-        setEditVisibility(false)
 
-    }else{
-        document.getElementById("editStateHead").innerHTML = "<img src=\"/lib/images/unlock.jpg\" class=\"img-header\" onclick=\"checkEditState()\"/>"
-        document.getElementById("chkEditable").checked = true;
-        setEditVisibility(true)
-    }
-}
-function setEditVisibility(blnVisible){
-    var table = document.getElementById("reportTable");
-    for(let i = 0; i < table.rows.length - 1; i++){
-        if(blnVisible){
-            document.getElementById("edt" + i).setAttribute("class", "btn btn-warning btn-sm btn-row");
-            document.getElementById("del" + i).setAttribute("class", "btn btn-danger btn-sm btn-row");
-        }else{
-            document.getElementById("edt" + i).setAttribute("class", "btn btn-secondary btn-sm btn-row");
-            document.getElementById("del" + i).setAttribute("class", "btn btn-secondary btn-sm btn-row");
-        }
-    }
-}
+
 function editEntry(e, t){
-    if(document.getElementById("chkEditable").checked){
-        if(confirm("Change Entry?")){
+  //this function is called first time the edit button is hit. We need to change change all of this rows
+  //columns to textboxes
+       
+    
+}
+function changeEntry(e, t){
+    if(confirm("Change Entry?")){
             var url = "editEntry";
             $.post(url, function(data){
                 if(data){
@@ -72,11 +53,8 @@ function editEntry(e, t){
                 }
             });
         }
-    }
-    
 }
 function deleteEntry(e, id){
-    if(document.getElementById("chkEditable").checked){
         if(confirm("Delete Entry?")){
             //we have to get the entryID of the entry we want to delete. First lets get the row number from the id of the button that fired this event
             var x = id.replace('d','');
@@ -98,20 +76,13 @@ function deleteEntry(e, id){
         }else{
             return;
         }
-    }
 }
 function popup(count){
     //we want to have a popup right by the clicked on table row that will have a delete and edit button
     //get row
-    var div = document.getElementById("div" + count);
-    div.style.display="block;";
-    alert(div)
-   
+    var col = document.getElementById("colEdit" + count);
+    col.style.display = "block";
 }
-function loadScript(){
-    checkUserSession();
-    setEditVisibility(false);
-    var hdnTbl = document.getElementById("hdnTbl")
-    
-}
+
+
 </script>
