@@ -4,7 +4,7 @@
     <link rel="stylesheet" href="~/css/site.css" />
     
 </head>
-<body onload="loadScript()">
+<body>
 <h2>@ViewBag.Msg</h2>
 
 <form asp-controller="Home" method="post" id="reportForm" role="form">
@@ -14,7 +14,7 @@
                 Category
             </th>
             <td>
-                @Html.DropDownListFor(x => x.category, Model.categories)
+                @Html.DropDownListFor(x => x.category, Model.categories, new {@id = "ddlCategories"})
             </td>
             <th class="th-md">
                 Period
@@ -34,22 +34,67 @@
 </body>
 <script>
 
-
-function editEntry(e, t){
+function editEntry(e, count){
   //this function is called first time the edit button is hit. We need to change change all of this rows
   //columns to textboxes
-       
+  //first lets get each column in this row
+    var amt = document.getElementById("amt" + count)
+    var cat = document.getElementById("cat" + count)
+    var sub = document.getElementById("sub" + count)
+    var des = document.getElementById("des" + count)
+    var crt = document.getElementById("crt" + count)
+    var sender = document.getElementById("edt" + count) // and get the button that was clicked
+    var category = cat.textContent
     
-}
-function changeEntry(e, t){
+    //change the values of each column value in the row to textboxes. 
+    //for amount we want it as a substring that does not contain the first character which is a '$' so it does not mess up our database query
+    amt.innerHTML = "<input id=\"txtAmt" + count + "\" value=\"" + amt.innerHTML.substring(1, amt.innerHTML.length) + "\"/>";  
+    cat.innerHTML = "<select id=\"ddlCat" + count + "\" />"
+    sub.innerHTML = "<input id=\"txtSub" + count + "\" value=\"" + sub.innerHTML + "\"/>";
+    des.innerHTML = "<input id=\"txtDes" + count + "\" value=\"" + des.innerHTML + "\"/>";
+    crt.innerHTML = "<input id=\"txtCrt" + count + "\" value=\"" + crt.innerHTML + "\"/>";
+    //now we want to change the buttons onclick to a method that will post the change
+    sender.setAttribute("onClick", "javascript : changeEntry(event, "+ count +")")
+    sender.value = "update";
+    //now lets add the categories into the dropdown list of categories in this row
+    var ddlCat = document.getElementById("ddlCat" + count)
+    var ddlVal = document.getElementById("ddlCategories")//the select with the values we need
+    ddlCat.innerHTML = ddlVal.innerHTML;
+    //now we want to remove the all option
+    ddlCat.remove(4)
+    //select the category that was previosly selected
+    ddlCat.value = category
+    
+    }
+function changeEntry(e, count){
+    //this function will actually change the values of an entry if the user confirms thats what they want to do.
+    //we will take care of input validation on the backend since it is a bit easier for me to do in c# than in js
+    //lets get each column in this row
+    var amt = document.getElementById("txtAmt" + count)
+    var cat = document.getElementById("ddlCat" + count)
+    var sub = document.getElementById("txtSub" + count)
+    var des = document.getElementById("txtDes" + count)
+    var crt = document.getElementById("txtCrt" + count)
+    var entryID = document.getElementById("entryID" + count)
     if(confirm("Change Entry?")){
-            var url = "editEntry";
+            var url = "editEntry?intEntryId=" + entryID.value + "&strAmt=" + amt.value + "&strCat=" + cat.value+ "&strSub=" + sub.value + "&strDes=" + des.value + "&strCrt=" + crt.value; 
             $.post(url, function(data){
-                if(data){
-                    alert("sucessfully edited entry...");
-                    location.reload();
-                }else{
-                    alert("something went wrong, no changes made.");
+                /**
+                 * Code Schem for return value : data
+                 * 0 = all good, entry was changed sucessfully
+                 * -1 = no session open
+                 * -2 = invalid amount
+                 * -3 = invalid created time
+                 * -4 = invalid category, not in database table
+                 * -5 = unable to open database connection
+                 * -6 = unable to execute statement
+                 */
+                if(data == 0){
+                    alert("sucessfully updated your entry.")
+                    window.location.reload();
+                }
+                else{
+                    alert(data);
                 }
             });
         }
