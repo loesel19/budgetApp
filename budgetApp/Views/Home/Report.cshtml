@@ -2,63 +2,105 @@
 <head>
     <link type="text/javascript" href="/js/site.js" />
     <link rel="stylesheet" href="~/css/site.css" />
-    
+    <script src="~/lib/jquery/dist/jquery.js" ></script>
 </head>
-<body onload="loadScript()">
+<body>
 <h2>@ViewBag.Msg</h2>
+
 <form asp-controller="Home" method="post" id="reportForm" role="form">
-    @Html.DropDownListFor(x => x.category, Model.categories)
-    @Html.DropDownListFor(x => x.period, Model.periods)
-    <button type="submit" class="btn btn-outline-primary">View</button>
+    <table class="table table-sm" id="tblReport" style="width: 100%;">
+        <tr>
+            <th class="th-md" style="width: 20%;">
+                Category
+            </th>
+            <td style="width: 20%;">
+                @Html.DropDownListFor(x => x.category, Model.categories, new {@id = "ddlCategories"})
+            </td>
+            <th class="th-md" style="width: 20%;">
+                Period
+            </th>
+            <td style="width: 20%;">
+                @Html.DropDownListFor(x => x.period, Model.periods)
+            </td>
+            <td style="width: 20%;">
+                <button type="submit" class="btn btn-outline-primary">View</button>
+            </td>
+        </tr>
+
+    </table>
+    
 </form>
-@Html.Raw(Model.strHTML)
 @Html.Raw(Model.strHTMLTable)
-<input type="checkbox" id="chkEditable" value="false" hidden />
 </body>
 <script>
-function checkEditState() {
-    if(document.getElementById("chkEditable").checked){
-        document.getElementById("editStateHead").innerHTML = "<img src=\"/lib/images/lock.jpg\" class=\"img-header\" onclick=\"checkEditState()\"/>"
-        //flip checkbox
-        document.getElementById("chkEditable").checked = false;
-        setEditVisibility(false)
 
-    }else{
-        document.getElementById("editStateHead").innerHTML = "<img src=\"/lib/images/unlock.jpg\" class=\"img-header\" onclick=\"checkEditState()\"/>"
-        document.getElementById("chkEditable").checked = true;
-        setEditVisibility(true)
+function editEntry(e, count){
+  //this function is called first time the edit button is hit. We need to change change all of this rows
+  //columns to textboxes
+  //first lets get each column in this row
+    var amt = document.getElementById("amt" + count)
+    var cat = document.getElementById("cat" + count)
+    var sub = document.getElementById("sub" + count)
+    var des = document.getElementById("des" + count)
+    var crt = document.getElementById("crt" + count)
+    var sender = document.getElementById("edt" + count) // and get the button that was clicked
+    var category = cat.textContent
+    
+    //change the values of each column value in the row to textboxes. 
+    //for amount we want it as a substring that does not contain the first character which is a '$' so it does not mess up our database query
+    amt.innerHTML = "<input class=\"txt-col\" id=\"txtAmt" + count + "\" value=\"" + amt.innerHTML.substring(1, amt.innerHTML.length) + "\"/>";  
+    cat.innerHTML = "<select id=\"ddlCat" + count + "\" />"
+    sub.innerHTML = "<input class=\"txt-col\" id=\"txtSub" + count + "\" value=\"" + sub.innerHTML + "\"/>";
+    des.innerHTML = "<input class=\"txt-col\"  id=\"txtDes" + count + "\" value=\"" + des.innerHTML + "\"/>";
+    crt.innerHTML = "<input class=\"txt-col\" id=\"txtCrt" + count + "\" value=\"" + crt.innerHTML + "\"/>";
+    //now we want to change the buttons onclick to a method that will post the change
+    sender.setAttribute("onClick", "javascript : changeEntry(event, "+ count +")")
+    sender.setAttribute("class", "btn btn-row btn-success btn-sm");
+    //now lets add the categories into the dropdown list of categories in this row
+    var ddlCat = document.getElementById("ddlCat" + count)
+    var ddlVal = document.getElementById("ddlCategories")//the select with the values we need
+    ddlCat.innerHTML = ddlVal.innerHTML;
+    //now we want to remove the all option
+    ddlCat.remove(4)
+    //select the category that was previosly selected
+    ddlCat.value = category
+    
     }
-}
-function setEditVisibility(blnVisible){
-    var table = document.getElementById("reportTable");
-    for(let i = 0; i < table.rows.length - 1; i++){
-        if(blnVisible){
-            document.getElementById("edt" + i).setAttribute("class", "btn btn-warning btn-sm btn-row");
-            document.getElementById("del" + i).setAttribute("class", "btn btn-danger btn-sm btn-row");
-        }else{
-            document.getElementById("edt" + i).setAttribute("class", "btn btn-secondary btn-sm btn-row");
-            document.getElementById("del" + i).setAttribute("class", "btn btn-secondary btn-sm btn-row");
-        }
-    }
-}
-function editEntry(e, t){
-    if(document.getElementById("chkEditable").checked){
-        if(confirm("Change Entry?")){
-            var url = "editEntry";
+function changeEntry(e, count){
+    //this function will actually change the values of an entry if the user confirms thats what they want to do.
+    //we will take care of input validation on the backend since it is a bit easier for me to do in c# than in js
+    //lets get each column in this row
+    var amt = document.getElementById("txtAmt" + count)
+    var cat = document.getElementById("ddlCat" + count)
+    var sub = document.getElementById("txtSub" + count)
+    var des = document.getElementById("txtDes" + count)
+    var crt = document.getElementById("txtCrt" + count)
+    var entryID = document.getElementById("entryID" + count)
+    
+    if(confirm("Change Entry?")){
+            var url = "editEntry?intEntryId=" + entryID.textContent + "&strAmt=" + amt.value + "&strCat=" + cat.value+ "&strSub=" + sub.value + "&strDes=" + des.value + "&strCrt=" + crt.value; 
             $.post(url, function(data){
-                if(data){
-                    alert("sucessfully edited entry...");
-                    location.reload();
-                }else{
-                    alert("something went wrong, no changes made.");
+                /**
+                 * Code Schem for return value : data
+                 * 0 = all good, entry was changed sucessfully
+                 * -1 = no session open
+                 * -2 = invalid amount
+                 * -3 = invalid created time
+                 * -4 = invalid category, not in database table
+                 * -5 = unable to open database connection
+                 * -6 = unable to execute statement
+                 */
+                if(data == 0){
+                    alert("sucessfully updated your entry.")
+                    window.location.reload();
+                }
+                else{
+                    alert(data);
                 }
             });
         }
-    }
-    
 }
 function deleteEntry(e, id){
-    if(document.getElementById("chkEditable").checked){
         if(confirm("Delete Entry?")){
             //we have to get the entryID of the entry we want to delete. First lets get the row number from the id of the button that fired this event
             var x = id.replace('d','');
@@ -71,19 +113,59 @@ function deleteEntry(e, id){
             var url = "deleteEntry?entryID=" + entryID;
             $.post(url, function(data){
                 if(data){
-                    alert("entry has been deleted... or this will work once I do the npgsqlTransaction correctly.");
+                    alert("Entry has been deleted.");
                     location.reload();
                 }else{
-                    alert("something went wrong, entry not deleted.");
+                    alert("Something went wrong, entry not deleted.");
                 }
             });
         }else{
             return;
         }
+}
+function popup(count){
+    //we want to have a popup right by the clicked on table row that will have a delete and edit button
+    //get row
+    var col = document.getElementById("colEdit" + count);
+    if(col.style.display == "none"){
+    col.style.display = "table-cell";
+    return;
     }
+    //now if it is shown, but the edit button has not been clicked yet, we should hide the cell
+    //get the button
+    var btnEdit = document.getElementById("edt" + count);
+    //if the button class is still btn-warning not btn-success we know it has not been clicked yet
+    if(btnEdit.classList.contains("btn-warning")){
+        col.style.display = "none";
+        return;
+    }
+
 }
-function loadScript(){
-    checkUserSession();
-    setEditVisibility(false);
-}
+//code implemented from stackoverflow answer by user anushree https://stackoverflow.com/questions/19605078/how-to-use-pagination-on-html-tables
+//code is for paging our table
+/*
+ $(document).ready(function(){
+        $('#reportTable').after('<div id="nav"></div>');
+        var rowsShown = 5;
+        var rowsTotal = $('#data tbody tr').length;
+        var numPages = rowsTotal/rowsShown;
+        for(i = 0;i < numPages;i++) {
+            var pageNum = i + 1;
+            $('#nav').append('<a href="#" rel="'+i+'">'+pageNum+'</a> ');
+        }
+        $('#reportTable tbody tr').hide();
+        $('#reportTable tbody tr').slice(0, rowsShown).show();
+        $('#nav a:first').addClass('active');
+        $('#nav a').bind('click', function(){
+
+            $('#nav a').removeClass('active');
+            $(this).addClass('active');
+            var currPage = $(this).attr('rel');
+            var startItem = currPage * rowsShown;
+            var endItem = startItem + rowsShown;
+            $('#reportTable tbody tr').css('opacity','0.0').hide().slice(startItem, endItem).
+                    css('display','table-row').animate({opacity:1}, 300);
+        });
+    });
+    */
 </script>

@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using System.Diagnostics;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace budgetApp.Controllers
 {
@@ -187,6 +189,7 @@ namespace budgetApp.Controllers
         [HttpPost]
         public IActionResult Report(ReportModel model)
         {
+
             /* we need to make a report, lets do it as a table to make it look nice. We will want to use a string builder 
              * and a couple switch statements since there are a lot of differenct reports we can generate. */
             StringBuilder sbSQL = new StringBuilder("SELECT * From entrys WHERE userID = '" + GlobalVariables.UserID + "'");
@@ -224,18 +227,10 @@ namespace budgetApp.Controllers
             }
             //create a data reader based off the query we built.
             NpgsqlDataReader sdr = objDB.ExecuteDataReader(sbSQL.ToString());
-            /* lets start building our table, put in the headers first. Space them nicely as well */
-            StringBuilder strTable = new StringBuilder("<table class=\"table\" id=\"reportTable\" style=\"table-layout: fixed; border-collapes: collapse;\">");
-            strTable.AppendLine("   <tr>");
-            strTable.AppendLine("       <th class=\"th-md\">entryID</th>");
-            strTable.AppendLine("       <th class=\"th-md\">Amount</th>");
-            strTable.AppendLine("       <th class=\"th-md\">Category</th>");
-            strTable.AppendLine("       <th class=\"th-md\">SubCategory</th>");
-            strTable.AppendLine("       <th class=\"th-md\">Description</th>");
-            strTable.AppendLine("       <th class=\"th-md\">Date</th>");
-            strTable.AppendLine("       <th class=\"th-md\" id=\"editStateHead\"><img src=\"/lib/images/lock.jpg\" class=\"img-header\" onclick=\"checkEditState()\"/></th>");
-            strTable.AppendLine("   </tr>");
-
+            /* lets start building our table. We will do the headers last since I want to have the total spent and net toward the top. 
+             * Space them nicely as well */
+            StringBuilder strTbody = new StringBuilder();
+            strTbody.AppendLine("   <tbody>");
             /* now we need to loop through all the results returned by our datareader, and add them as a row to the table */
             if (sdr == null)
             {
@@ -251,9 +246,10 @@ namespace budgetApp.Controllers
             while (sdr.Read())
             {
                 /* we can check the category to both set the background color, and to keep total gross and total net spending */
+                
                 if(sdr["Category"].ToString() == "Income")
                 {
-                    strTable.AppendLine("<tr style=\"background-color:#00FF7F;\">");
+                    strTbody.AppendLine("       <tr style=\"background-color:#0d6efd;\" id=\"tr" + count + "\" onclick=\"popup(" + count + ")\">");
                     try
                     {
                         income += double.Parse(sdr["Amount"].ToString());
@@ -263,7 +259,7 @@ namespace budgetApp.Controllers
                 }
                 else
                 {
-                    strTable.AppendLine("   <tr style=\"background-color:#CD5C5C;\">");
+                    strTbody.AppendLine("       <tr  id=\"tr" + count + "\" onclick=\"popup("+ count + ")\">");
                     try
                     {
                         spent += double.Parse(sdr["Amount"].ToString());
@@ -273,25 +269,45 @@ namespace budgetApp.Controllers
                         //nothing to do if amount is null. it shouldn't happen since we validate before entering into the database
                     }
                 }
-                strTable.AppendLine("       <td class=\"td-md\" id=\"entryID" + count + "\">" + sdr["entryID"] + "</td>");
-                strTable.AppendLine("       <td class=\"td-md\" id=\"amt" + count + "\">$" + sdr["Amount"] + "</td>");
-                strTable.AppendLine("       <td class=\"td-md\" id=\"cat" + count + "\">" + sdr["Category"] + "</td>");
-                strTable.AppendLine("       <td class=\"td-md\" id=\"sub" + count + "\">" + sdr["Subcategory"] + "</td>");
-                strTable.AppendLine("       <td class=\"td-md\" id=\"des" + count + "\">" + sdr["Description"] + "</td>");
-                strTable.AppendLine("       <td class=\"td-md\" id=\"crt" + count + "\">" + sdr["Createdtime"] + "</td>");
-                strTable.AppendLine("       <td class=\"td-md\" id=\"colEdit" + count + "\"><input type=\"button\" class=\"btn btn-secondary btn-sm btn-row\" onclick=\"editEntry(event, this.id)\" id=\"edt" + count + "\"/>" +
-                    " &nbsp <input type=\"button\" class=\"btn btn-secondary btn-sm btn-row\" onclick=\"deleteEntry(event, this.id)\" id=\"del" + count + "\"/>");
-                strTable.AppendLine("   </tr>");
+                strTbody.AppendLine("           <td class=\"td-md\" id=\"entryID" + count + "\" hidden>" + sdr["entryID"] + "</td>");
+                //to formoat our currency properly lets use cultureInfo.CurrentCulture. It should grab the region where the app is running. we will have to parse the value into a double and then a string
+                strTbody.AppendLine("           <td class=\"td-md\" id=\"amt" + count + "\">" + double.Parse(sdr["Amount"].ToString()).ToString("C", CultureInfo.CurrentCulture) + "</td>");
+                strTbody.AppendLine("           <td class=\"td-md\" id=\"cat" + count + "\">" + sdr["Category"] + "</td>");
+                strTbody.AppendLine("           <td class=\"td-md\" id=\"sub" + count + "\">" + sdr["Subcategory"] + "</td>");
+                strTbody.AppendLine("           <td class=\"td-md\" id=\"des" + count + "\">" + sdr["Description"] + "</td>");
+                strTbody.AppendLine("           <td class=\"td-md\" id=\"crt" + count + "\">" + sdr["Createdtime"] + "</td>");
+                strTbody.AppendLine("           <td class=\"td-md\" id=\"colEdit" + count + "\" style=\"display: none;\"><input type=\"button\" class=\"btn btn-warning btn-sm btn-row\" onclick=\"editEntry(event, "+ count +")\" id=\"edt" + count + "\"/>" +
+                    " &nbsp <input type=\"button\" class=\"btn btn-danger btn-sm btn-row\" onclick=\"deleteEntry(event, this.id)\" id=\"del" + count + "\"/>");
+                strTbody.AppendLine("   </tr>");
                 //increment counter
                 count++;
             }
+            //close the tbody tag
+            strTbody.AppendLine("</tbody>");
             //dont forget to close the table tag
-            strTable.AppendLine("</table>");
-            //now we need to set the totals as well
-            model.strHTML = "<table><tr><th class=\"th-md\">Total Spent</th>" +
-                "<td>&nbsp$" + spent + "</td>" + "<th class=\"th-md\">Total Net</th>" +
-                "<td>&nbsp$" + (income - spent) + "</td></tr></table>";
-            model.strHTMLTable = strTable.ToString();
+            strTbody.AppendLine("</table>");
+            //now we do the table head since we can put the total spent and net in our headers
+            StringBuilder strThead = new StringBuilder("<table class=\"table table-hover\" id=\"reportTable\" style=\"table-layout: fixed;\">");
+            strThead.AppendLine("   <thead>");
+            strThead.AppendLine("       <tr>");
+            strThead.AppendLine("           <th class=\"th-md\">Spent</th>");
+            
+            strThead.AppendLine("           <td>" + spent.ToString("C", CultureInfo.CurrentCulture) + "</td>"); 
+            strThead.AppendLine("           <th class=\"th-md\">Total net</th>");
+            strThead.AppendLine("           <td>" + (income - spent).ToString("C", CultureInfo.CurrentCulture) + "</td>");
+            strThead.AppendLine("       </tr>");
+            strThead.AppendLine("       <tr>");
+            strThead.AppendLine("           <th class=\"th-md\" hidden>entryID</th>");
+            strThead.AppendLine("           <th class=\"th-md\">Amount</th>");
+            strThead.AppendLine("           <th class=\"th-md\">Category</th>");
+            strThead.AppendLine("           <th class=\"th-md\">SubCategory</th>");
+            strThead.AppendLine("           <th class=\"th-md\">Description</th>");
+            strThead.AppendLine("           <th class=\"th-md\">Date</th>");
+            //strThead.AppendLine("           <th class=\"th-md\" id=\"editStateHead\"><img src=\"/lib/images/lock.jpg\" class=\"img-header\" onclick=\"checkEditState()\"/></th>");
+            strThead.AppendLine("       </tr>");
+            strThead.AppendLine("   </thead>");
+            strThead.AppendLine();
+            model.strHTMLTable = strThead.ToString() + strTbody.ToString();
             //clean up loose ends with the datareader, connection and lastly the object.
             sdr.Close();
             objDB.closeConnection();
@@ -574,15 +590,160 @@ namespace budgetApp.Controllers
                 return false;
             }
         }
-        public bool editEntry([FromQuery] string date, [FromQuery] string description, [FromQuery] string amount, [FromQuery] string category, [FromQuery] string subcategory)
+        public bool isNumber(string strTest)
         {
+            /**
+             * Name : isNumber
+             * Params : strTest - the string that we want to test
+             * Returns : bool - true => strTest is a number, false => strTest is not a number
+             * Purpose : the purpose of this method is to use the tryParse method on strTest to determine if it is a number or not.
+             *           */
+            if(!double.TryParse( strTest, out double d))
+            {
+                //not a double
+                return false;
+            }
+            //is a double
+            return true;
+        }
+        public string replaceSemiColon(string strReplace)
+        {
+            /**
+             * Name : replaceSemiColon
+             * Params : strReplace - the string which will need semicolons replaced
+             * Returns : a string containing no semicolons
+             * Purpose : in this function we will replace any semicolons in strReplace with a colon
+             *           because semicolons are used to delimit sql statements and that will mess up our queries.
+             *           We will use regex to replace.
+             *           */
+            string strNoSemi = Regex.Replace(strReplace, "/*;*/", ":");
+            return strNoSemi;
+        }
+        public bool isDateTime(string strDate)
+        {
+            /**
+             * Name : isDateTime
+             * Params : strDate - the string we are trying to parse to a dateTime
+             * Returns : bool - true => success, string represents a dateTime, false => failure
+             * Purpose : the purpose of this method is to try to parse strDate into a datetime, and return
+             *           a boolean that represents if this avenue was a sucess or a failure.
+             *           */
+            try
+            {
+                DateTime.Parse(strDate);
+                return true;
+            }catch(Exception ex)
+            {
+                return false;
+            }
+        }
+        public bool validateCategory(string strCategory) {
+            /**
+             * Name : validateCategory
+             * Params : strCategory - the category we need to validate
+             * Returns : bool - true => category is a valid one, false otherwise
+             * Purpose : the purpose of this function is to make sure that the category used in the edit
+             *           is a valid one, one that is in our database table.
+             *           */
+            //TODO// Implement this method once category table is created.
+            return true;
+        }
+        public int editEntry([FromQuery] int intEntryID, [FromQuery]string strAmt, [FromQuery]string strCat, [FromQuery]string strSub, [FromQuery]string strDes, [FromQuery]string strCrt)
+        {
+            /**
+             * Name : editEntry
+             * Params : strAmt - the amount the user wishes to change to for the current entry
+             *          strCat - the category the user wishes the entry to have
+             *          strSub - the subCategory the user wishes the entry to have
+             *          strDes - the description the user wishes the entry to have
+             *          strCrt - the created time the user wishes the entry to have.
+             * Returns : strReturn - a return string that first has a code where
+             *                       0 = all good, entry was changed sucessfully
+             *                       -1 = no session open
+             *                       -2 = invalid amount
+             *                       -3 = invalid created time
+             *                       -4 = invalid category, not in database table
+             *                       -5 = unable to open database connection
+             *                       -6 = unable to execute statement
+             * Purpose : the purpose of this function is to take in all the parameters from an entry on the report page on the front end, and
+             *           try to update the corresponding row in the entry table. We will check to make sure that we arent trying to update with
+             *           bogus values, and if we are we will use the above mentioned values to tell the frontend what occurred so that the user
+             *           can be notified. If everything is all good we will make an instance of our database object and run an update command
+             *           against our database. If the query is sucessful we return "0" otherwise we will use one of the aforementioned error codes.
+             *           */
             //check to see if there is an open session for the user
             if (!checkSession())
             {
                 ViewBag.Message = "No open session, please sign out and sign back in. ";
-                return false;
+                return -1;
             }
-            return false;
+            //check the amount given
+            if (!isNumber(strAmt))
+            {
+                return -2;
+            }
+            //check the created time given
+            if (!isDateTime(strCrt))
+            {
+                return -3;
+            }
+            if (!validateCategory(strCat))
+            {
+                return -4;
+            }
+            /*now lets make sure we replace any semicolons in the two unchecked fields : subcategory and description. Semicolons
+             in the strings can mess up our sql queries. */
+
+            if (!string.IsNullOrEmpty(strSub))
+            {
+                strSub = replaceSemiColon(strSub);
+            }
+            if (!string.IsNullOrEmpty(strDes))
+            {
+                strDes = replaceSemiColon(strDes);
+            }
+            
+
+            //now create a database object instance
+            clsDatabase objDB = new clsDatabase(config.GetValue<string>("DBConnString"));
+            //sql will not like any commas in the numeric value, so lets make sure to replace any with nothing
+            string strSQL = "UPDATE entrys SET amount = '" + strAmt.Replace(",", "") + "', category = '" + strCat + "', subcategory = '" + strSub + "', description= '" + strDes + "', createdtime = '" + strCrt + "' " +
+                "WHERE entryID = '" + intEntryID + "';";
+            NpgsqlConnection conn = objDB.getConnection();
+            try{
+                conn.Open();
+                
+            }
+            catch
+            {
+                return -5;
+            }
+            //open a transaction for the sql changes we are about to make.
+            using(NpgsqlTransaction tr = conn.BeginTransaction())
+            {
+                
+                //create a command
+                NpgsqlCommand cmd = new NpgsqlCommand(strSQL, conn);
+                //now lets try to execute the command and commit the transaction
+                try
+                {
+                    cmd.ExecuteNonQuery();
+                    tr.Commit();
+                }
+                catch (Exception ex)
+                {
+                    //before return code -6 lets close down all of the objects
+                    tr.Rollback();
+                    objDB.Dispose();
+                    conn.Close();
+                    return -6;
+                }
+
+            }
+            //now we have sucessfully commited the change to our database, lets close the objects
+            conn.Close();
+            objDB.Dispose();
+            return 0;
         }
         private string validHash(string strNormal)
         {
