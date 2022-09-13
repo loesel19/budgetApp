@@ -245,7 +245,7 @@ namespace budgetApp.Controllers
             while (sdr.Read())
             {
                 /* we can check the category to both set the background color, and to keep total gross and total net spending */
-                //strTbody.AppendLine("<div id=\"div" + count + "\" class=\"div-popup\"><button class=\"btn btn-danger\">Del</button></div>");
+                
                 if(sdr["Category"].ToString() == "Income")
                 {
                     strTbody.AppendLine("       <tr style=\"background-color:#0d6efd;\" id=\"tr" + count + "\" onclick=\"popup(" + count + ")\">");
@@ -258,7 +258,7 @@ namespace budgetApp.Controllers
                 }
                 else
                 {
-                    strTbody.AppendLine("       <tr style=\"background-color:#adb5bd;\" id=\"tr" + count + "\" onclick=\"popup("+ count + ")\">");
+                    strTbody.AppendLine("       <tr  id=\"tr" + count + "\" onclick=\"popup("+ count + ")\">");
                     try
                     {
                         spent += double.Parse(sdr["Amount"].ToString());
@@ -286,7 +286,7 @@ namespace budgetApp.Controllers
             //dont forget to close the table tag
             strTbody.AppendLine("</table>");
             //now we do the table head since we can put the total spent and net in our headers
-            StringBuilder strThead = new StringBuilder("<table class=\"table table-hover\" id=\"reportTable\" style=\"table-layout: fixed; border-collapes: collapse;\">");
+            StringBuilder strThead = new StringBuilder("<table class=\"table table-hover\" id=\"reportTable\" style=\"table-layout: fixed;\">");
             strThead.AppendLine("   <thead>");
             strThead.AppendLine("       <tr>");
             strThead.AppendLine("           <th class=\"th-md\">Spent</th>");
