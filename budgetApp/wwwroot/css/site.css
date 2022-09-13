@@ -61,3 +61,6 @@ h2{
     position: relative;
     display: none;
 }
+.txt-col{
+    max-width: 100%;
+}

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using System.Diagnostics;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -268,7 +269,8 @@ namespace budgetApp.Controllers
                     }
                 }
                 strTbody.AppendLine("           <td class=\"td-md\" id=\"entryID" + count + "\" hidden>" + sdr["entryID"] + "</td>");
-                strTbody.AppendLine("           <td class=\"td-md\" id=\"amt" + count + "\">$" + sdr["Amount"] + "</td>");
+                //to formoat our currency properly lets use cultureInfo.CurrentCulture. It should grab the region where the app is running. we will have to parse the value into a double and then a string
+                strTbody.AppendLine("           <td class=\"td-md\" id=\"amt" + count + "\">" + double.Parse(sdr["Amount"].ToString()).ToString("C", CultureInfo.CurrentCulture) + "</td>");
                 strTbody.AppendLine("           <td class=\"td-md\" id=\"cat" + count + "\">" + sdr["Category"] + "</td>");
                 strTbody.AppendLine("           <td class=\"td-md\" id=\"sub" + count + "\">" + sdr["Subcategory"] + "</td>");
                 strTbody.AppendLine("           <td class=\"td-md\" id=\"des" + count + "\">" + sdr["Description"] + "</td>");
@@ -288,9 +290,10 @@ namespace budgetApp.Controllers
             strThead.AppendLine("   <thead>");
             strThead.AppendLine("       <tr>");
             strThead.AppendLine("           <th class=\"th-md\">Spent</th>");
-            strThead.AppendLine("           <td>$" + spent + "</td>");
+            
+            strThead.AppendLine("           <td>" + spent.ToString("C", CultureInfo.CurrentCulture) + "</td>"); 
             strThead.AppendLine("           <th class=\"th-md\">Total net</th>");
-            strThead.AppendLine("           <td>$" + (income - spent) + "</td>");
+            strThead.AppendLine("           <td>" + (income - spent).ToString("C", CultureInfo.CurrentCulture) + "</td>");
             strThead.AppendLine("       </tr>");
             strThead.AppendLine("       <tr>");
             strThead.AppendLine("           <th class=\"th-md\" hidden>entryID</th>");
@@ -695,11 +698,13 @@ namespace budgetApp.Controllers
 
             //now create a database object instance
             clsDatabase objDB = new clsDatabase(config.GetValue<string>("DBConnString"));
-            string strSQL = "UPDATE entrys SET amount = " + strAmt + ", category = '" + strCat + "', subcategory = '" + strSub + "', description= '" + strDes + "', createdtime = '" + strCrt + "' " +
-                "WHERE entryID = " + intEntryID;
+            //sql will not like any commas in the numeric value, so lets make sure to replace any with nothing
+            string strSQL = "UPDATE entrys SET amount = '" + strAmt.Replace(",", "") + "', category = '" + strCat + "', subcategory = '" + strSub + "', description= '" + strDes + "', createdtime = '" + strCrt + "' " +
+                "WHERE entryID = '" + intEntryID + "';";
             NpgsqlConnection conn = objDB.getConnection();
             try{
                 conn.Open();
+                
             }
             catch
             {
@@ -708,6 +713,7 @@ namespace budgetApp.Controllers
             //open a transaction for the sql changes we are about to make.
             using(NpgsqlTransaction tr = conn.BeginTransaction())
             {
+                
                 //create a command
                 NpgsqlCommand cmd = new NpgsqlCommand(strSQL, conn);
                 //now lets try to execute the command and commit the transaction
