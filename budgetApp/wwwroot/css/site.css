@@ -55,3 +55,7 @@ h2{
 .txt-col{
     max-width: 100%;
 }
+.td-right{
+    text-align: right;
+    align-content: end;
+    }

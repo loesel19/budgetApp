@@ -2,27 +2,27 @@
 <head>
     <link type="text/javascript" href="/js/site.js" />
     <link rel="stylesheet" href="~/css/site.css" />
-    
+    <script src="~/lib/jquery/dist/jquery.js" ></script>
 </head>
 <body>
 <h2>@ViewBag.Msg</h2>
 
 <form asp-controller="Home" method="post" id="reportForm" role="form">
-    <table class="table table-sm" id="tblReport" style="width: 75%;">
+    <table class="table table-sm" id="tblReport" style="width: 100%;">
         <tr>
-            <th class="th-md">
+            <th class="th-md" style="width: 20%;">
                 Category
             </th>
-            <td>
+            <td style="width: 20%;">
                 @Html.DropDownListFor(x => x.category, Model.categories, new {@id = "ddlCategories"})
             </td>
-            <th class="th-md">
+            <th class="th-md" style="width: 20%;">
                 Period
             </th>
-            <td>
+            <td style="width: 20%;">
                 @Html.DropDownListFor(x => x.period, Model.periods)
             </td>
-            <td>
+            <td style="width: 20%;">
                 <button type="submit" class="btn btn-outline-primary">View</button>
             </td>
         </tr>
@@ -143,9 +143,10 @@ function popup(count){
 }
 //code implemented from stackoverflow answer by user anushree https://stackoverflow.com/questions/19605078/how-to-use-pagination-on-html-tables
 //code is for paging our table
+/*
  $(document).ready(function(){
         $('#reportTable').after('<div id="nav"></div>');
-        var rowsShown = 7;
+        var rowsShown = 5;
         var rowsTotal = $('#data tbody tr').length;
         var numPages = rowsTotal/rowsShown;
         for(i = 0;i < numPages;i++) {
@@ -166,4 +167,5 @@ function popup(count){
                     css('display','table-row').animate({opacity:1}, 300);
         });
     });
+    */
 </script>

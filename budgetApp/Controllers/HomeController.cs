@@ -189,6 +189,7 @@ namespace budgetApp.Controllers
         [HttpPost]
         public IActionResult Report(ReportModel model)
         {
+
             /* we need to make a report, lets do it as a table to make it look nice. We will want to use a string builder 
              * and a couple switch statements since there are a lot of differenct reports we can generate. */
             StringBuilder sbSQL = new StringBuilder("SELECT * From entrys WHERE userID = '" + GlobalVariables.UserID + "'");
@@ -692,9 +693,16 @@ namespace budgetApp.Controllers
             }
             /*now lets make sure we replace any semicolons in the two unchecked fields : subcategory and description. Semicolons
              in the strings can mess up our sql queries. */
+
+            if (!string.IsNullOrEmpty(strSub))
+            {
+                strSub = replaceSemiColon(strSub);
+            }
+            if (!string.IsNullOrEmpty(strDes))
+            {
+                strDes = replaceSemiColon(strDes);
+            }
             
-            strSub = replaceSemiColon(strSub);
-            strDes = replaceSemiColon(strDes);
 
             //now create a database object instance
             clsDatabase objDB = new clsDatabase(config.GetValue<string>("DBConnString"));
