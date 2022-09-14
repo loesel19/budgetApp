@@ -29,7 +29,7 @@
         }
     }
     function checkSignedIn(){
-        if(checkUserSession()){
+        if(checkUserNotSignedIn()){
             //user is signed in, so alert them and redirect to the index page
             alert("You are already signed in! Please sign out to make a new account.");
             window.location = "/Home/Index";

@@ -31,6 +31,39 @@ function checkUserSession() {
 
     });
 }
+function checkUserNotSignedIn() {
+    /**
+     * This is a copy pase function from CheckUserSession, except we flip all the returns,
+     * and do not alert or redirect when a user is not signed in. The function ensures that a user does not go to the signUp page while signed in.
+     * */
+    var x;
+    var arr = document.cookie.split(';');
+    for (var i = 0; i < arr.length; i++) {
+        var temp = arr[i].split("=");
+        if (temp[0] == "user") {
+            x = temp[1];
+            break;
+        }
+    }
+    if (x == null || x == "") {
+        
+        return true;
+    }
+
+    var url = "/Home/checkSession";
+
+    $.get(url, function (data) {
+        if (data == false) {
+            
+            return true;
+        }
+        //user is signed in so we want to redirect them and show them a message
+        window.location.href = "/Home/Index";
+        alert("Already signed in, to create a new account please sign out first.");
+        return false;
+
+    });
+}
 function generateUserCookie(username, boo) {
     if (boo) {
         const d = new Date();

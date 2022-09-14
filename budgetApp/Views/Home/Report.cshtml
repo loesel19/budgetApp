@@ -91,11 +91,26 @@ function changeEntry(e, count){
                  * -6 = unable to execute statement
                  */
                 if(data == 0){
-                    alert("sucessfully updated your entry.")
+                    alert("Sucessfully updated your entry.")
                     window.location.reload();
                 }
-                else{
-                    alert(data);
+                if(data == -1){
+                    alert("Action incomplete, no active user.");
+                }
+                if(data == -2){
+                    alert("Make sure amount is a number.");
+                }
+                if(data == -3){
+                    alert("Invalid date time.");
+                }
+                if(data == -4){
+                    alert("Category not valid");
+                }
+                if(data == -5){
+                    alert("Database connection failed.");
+                }
+                if(data == -6){
+                    alert("Unable to execute update statement on database.");
                 }
             });
         }
@@ -108,7 +123,6 @@ function deleteEntry(e, id){
             x = x.replace('l', '');
             //now we can get the value out of the entryID column in row number x
             var entryID = parseInt(document.getElementById("entryID" + x).innerHTML);
-            alert(entryID);
             // we need to post the id of the entry to delete to the controller
             var url = "deleteEntry?entryID=" + entryID;
             $.post(url, function(data){
