@@ -189,25 +189,35 @@ namespace budgetApp.Controllers
              * Purpose : the purpose of this method is to create a sql query for the report that the user requests to see.
              *           */
             StringBuilder sbSQL = new StringBuilder("SELECT * From entrys WHERE userID = '" + GlobalVariables.UserID + "'");
-            switch (model.category)
+            if (model.searchWithText)
             {
-                case "All":
 
-                    break;
-                default:
-                    sbSQL.Append(" AND Category = '" + model.category + "'");
-                    break;
+                /* we want to search with the textbox, so we should try and match the search string with subcategory and description */
+                sbSQL.Append(" AND (subcategory LIKE '%" + model.strSearch + "%' OR description LIKE '%" + model.strSearch + "%')");
             }
-            switch (model.period)
+            else
             {
-                case "YTD":
-                    sbSQL.Append(" AND date_part('year', CreatedTime) = date_part('year', now())");
-                    break;
-                case "All":
-                    break;
-                default:
-                    sbSQL.Append(" AND CreatedTime >= '" + DateTime.Now.AddDays(-1 * int.Parse(model.period)) + "'");
-                    break;
+                /* searching by the time and category user provided */
+                switch (model.category)
+                {
+                    case "All":
+
+                        break;
+                    default:
+                        sbSQL.Append(" AND Category = '" + model.category + "'");
+                        break;
+                }
+                switch (model.period)
+                {
+                    case "YTD":
+                        sbSQL.Append(" AND date_part('year', CreatedTime) = date_part('year', now())");
+                        break;
+                    case "All":
+                        break;
+                    default:
+                        sbSQL.Append(" AND CreatedTime >= '" + DateTime.Now.AddDays(-1 * int.Parse(model.period)) + "'");
+                        break;
+                }
             }
             sbSQL.Append(" ORDER BY CreatedTime DESC;");
             return sbSQL.ToString();
@@ -416,8 +426,8 @@ namespace budgetApp.Controllers
             //check to see if there is an open session for the user
             if (!checkSession())
             {
-                ViewBag.Message = "No open session, please sign out and sign back in. ";
-                return View();
+                ViewBag.Message = "No open session, try refreshing the page or closing out the browser. ";
+                return RedirectToAction("SignIn");
             }
             GlobalVariables.GlobalUsername = null;
             GlobalVariables.UserID = -1;
@@ -785,6 +795,8 @@ namespace budgetApp.Controllers
              *            that could mess up our database, for example if the password we try to send is x23's4 the ' will make the database think that s4 is some random
              *            garbage and will not accept any transactions with that string.
              *            */
+            //first make sure strNormal is not null or empty
+
             string strValid = "";
             
             byte[] hashPassword;
@@ -822,6 +834,10 @@ namespace budgetApp.Controllers
         }
         public bool checkSession()
         {
+            if (string.IsNullOrEmpty(Request.Cookies["user"]))
+            {
+                return false;
+            }
             var x = validHash(Request.Cookies["user"]);
             if (String.IsNullOrEmpty(x))
             {

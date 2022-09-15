@@ -8,6 +8,8 @@ namespace budgetApp.Models
         public string strHTMLTable { get; set; }
         public string category { get; set; }
         public string period { get; set; }
+        public bool searchWithText { get; set; }
+        public string strSearch { get; set; }
         public List<SelectListItem> categories { get; set; }
         public List<SelectListItem> periods { get; set; }
         public ReportModel()
@@ -46,14 +48,12 @@ namespace budgetApp.Models
             periods.Add(new SelectListItem
             {
                 Text = "Today",
-                Value = "1",
-                Selected = true
+                Value = "1"
             });
             periods.Add(new SelectListItem
             {
                 Text = "1 week",
-                Value = "7",
-                Selected = true
+                Value = "7"
             });
             periods.Add(new SelectListItem
             {
@@ -79,7 +79,8 @@ namespace budgetApp.Models
             periods.Add(new SelectListItem
             {
                 Text = "All",
-                Value = "All"
+                Value = "All",
+                Selected = true
             });
         }
     }

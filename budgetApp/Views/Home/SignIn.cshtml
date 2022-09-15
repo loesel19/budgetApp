@@ -8,7 +8,7 @@
 <form asp-controller="Home" method="post" id="signUpForm" role="form" onsubmit="preSubmitCheck()">
     <table class=table>
         <tr>
-            <td>
+            <td class="td-right">
                 <p>Username:</p>
             </td>
             <td>
@@ -16,7 +16,7 @@
             </td>
         </tr>
         <tr>
-            <td>
+            <td class="td-right">
                 <p>Password:</p>
             </td>
             <td>
@@ -24,7 +24,7 @@
             </td>
         </tr>
         <tr>
-            <td>
+            <td class="td-right">
                 <p>Stay Signed in <input type="checkbox" id="chkRemember" /></p>
             </td>
             <td>
@@ -33,7 +33,9 @@
         </tr>
         </table>
 </form>
-@Html.ActionLink("Sing Up", "signUp")
+    <div style="text-align: center;">
+        <p>Don't have an account? @Html.ActionLink("Sign Up", "signUp")</p>
+    </div>
 </body>
 
 <script>

@@ -11,20 +11,26 @@
     <table class="table table-sm" id="tblReport" style="width: 100%;">
         <tr>
             <th class="th-md" style="width: 20%;">
-                Category
+                Category : @Html.DropDownListFor(x => x.category, Model.categories, new {@id = "ddlCategories"})
             </th>
-            <td style="width: 20%;">
-                @Html.DropDownListFor(x => x.category, Model.categories, new {@id = "ddlCategories"})
-            </td>
             <th class="th-md" style="width: 20%;">
-                Period
+                Period : @Html.DropDownListFor(x => x.period, Model.periods)
             </th>
-            <td style="width: 20%;">
-                @Html.DropDownListFor(x => x.period, Model.periods)
-            </td>
-            <td style="width: 20%;">
+            <th class="th-md" style="width: 20%;">
+                Category
+                <label class="switch">
+                    @Html.CheckBoxFor(x=> x.searchWithText, new {@id="chkText"})
+                    <span class="slider round"></span>
+                </label>
+                Text
+            </th>
+            <th class="th-md" style="width: 20%;">
+                Keywords
+                @Html.TextBoxFor(x=> x.strSearch, new {@id = "txtSearch"})
+            </th>
+            <th class="th-md" style="width: 20%;">
                 <button type="submit" class="btn btn-outline-primary">View</button>
-            </td>
+            </th>
         </tr>
 
     </table>
