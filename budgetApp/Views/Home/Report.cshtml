@@ -14,9 +14,6 @@
                 Category : @Html.DropDownListFor(x => x.category, Model.categories, new {@id = "ddlCategories"})
             </th>
             <th class="th-md" style="width: 20%;">
-                Period : @Html.DropDownListFor(x => x.period, Model.periods)
-            </th>
-            <th class="th-md" style="width: 20%;">
                 Category
                 <label class="switch">
                     @Html.CheckBoxFor(x=> x.searchWithText, new {@id="chkText"})
@@ -24,9 +21,12 @@
                 </label>
                 Text
             </th>
-            <th class="th-md" style="width: 20%;">
+            <th class="th-md" style="width: 20%; border-right: solid 1px;">
                 Keywords
                 @Html.TextBoxFor(x=> x.strSearch, new {@id = "txtSearch"})
+            </th>
+            <th class="th-md" style="width: 20%;">
+                Period : @Html.DropDownListFor(x => x.period, Model.periods)
             </th>
             <th class="th-md" style="width: 20%;">
                 <button type="submit" class="btn btn-outline-primary">View</button>

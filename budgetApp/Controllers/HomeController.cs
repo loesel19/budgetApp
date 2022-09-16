@@ -207,17 +207,17 @@ namespace budgetApp.Controllers
                         sbSQL.Append(" AND Category = '" + model.category + "'");
                         break;
                 }
-                switch (model.period)
-                {
-                    case "YTD":
-                        sbSQL.Append(" AND date_part('year', CreatedTime) = date_part('year', now())");
-                        break;
-                    case "All":
-                        break;
-                    default:
-                        sbSQL.Append(" AND CreatedTime >= '" + DateTime.Now.AddDays(-1 * int.Parse(model.period)) + "'");
-                        break;
-                }
+            }
+            switch (model.period)
+            {
+                case "YTD":
+                    sbSQL.Append(" AND date_part('year', CreatedTime) = date_part('year', now())");
+                    break;
+                case "All":
+                    break;
+                default:
+                    sbSQL.Append(" AND CreatedTime >= '" + DateTime.Now.AddDays(-1 * int.Parse(model.period)) + "'");
+                    break;
             }
             sbSQL.Append(" ORDER BY CreatedTime DESC;");
             return sbSQL.ToString();
@@ -254,7 +254,7 @@ namespace budgetApp.Controllers
                 }
                 else
                 {
-                    strTbody.AppendLine("       <tr  id=\"tr" + count + "\" onclick=\"popup(" + count + ")\">");
+                    strTbody.AppendLine("       <tr id=\"tr" + count + "\" onclick=\"popup(" + count + ")\">");
                     try
                     {
                         spent += double.Parse(sdr["Amount"].ToString());
