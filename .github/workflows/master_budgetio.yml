@@ -53,5 +53,5 @@ jobs:
         with:
           app-name: 'budgetio'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_288188B5060447CAB755E9437F0213F3 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C57CCFEE98224EEB80AE2FBC3BE4BEF0 }}
           package: .
