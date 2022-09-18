@@ -3,35 +3,7 @@
 
 // Write your JavaScript code.
 
-function checkUserSession() {
-    var x;
-    var arr = document.cookie.split(';');
-    for (var i = 0; i < arr.length; i++) {
-        var temp = arr[i].split("=");
-        if (temp[0] == "user") {
-            x = temp[1];
-            break;
-        }
-    }
-    if (x == null || x == "") {
-        
-        
-        window.location = "/Home/SignIn";
-        return false;
-    }
 
-    var url = "/Home/checkSession";
-    
-    $.get(url, function (data) {
-        if (data == false) {
-            window.location = "/Home/SignIn";
-            alert("Not a valid session. Please sign in. ")
-            return false;
-        }
-        return true;
-
-    });
-}
 function checkUserNotSignedIn() {
     /**
      * This is a copy pase function from CheckUserSession, except we flip all the returns,
@@ -51,19 +23,7 @@ function checkUserNotSignedIn() {
         return true;
     }
 
-    var url = "/Home/checkSession";
-
-    $.get(url, function (data) {
-        if (data == false) {
-            
-            return true;
-        }
-        //user is signed in so we want to redirect them and show them a message
-        window.location.href = "/Home/Index";
-        alert("Already signed in, to create a new account please sign out first.");
-        return false;
-
-    });
+  
 }
 function generateUserCookie(username, boo) {
     if (boo) {
@@ -76,31 +36,6 @@ function generateUserCookie(username, boo) {
     }
 }
 
-function generateSessionCookie() {
-    
-    var x;
-    var arr = document.cookie.split(';');
-    for (var i = 0; i < arr.length; i++) {
-        var temp = arr[i].split("=");
-        if (temp[0] == "user") {
-            x = temp[1];
-            break;
-        }
-    }
-    if (x == null || x == "") {
-        alert("user was null")
-        return false;
-    }
-    $.post("/Home/generateSessionCookie", function (data) {
-        if (data == null || data == false) {
-            alert("Could not start sesstion. ");
-        } else {
-            return true;
-        }
-    })
-   
-    return false;
-}
 function checkPwdSetting(){
     var strNew, strConfirm;
     strNew = document.getElementById("txtNewPwd").value;

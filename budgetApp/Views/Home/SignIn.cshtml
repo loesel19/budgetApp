@@ -61,9 +61,7 @@ function preSubmitCheck(){
         }else{
             generateUserCookie(document.getElementById("txtUsername").value, false);
         }
-        if(!generateSessionCookie()){
-
-        }
+        
         //submit the form
         document.getElementById("signUpForm").submit();
         return true;

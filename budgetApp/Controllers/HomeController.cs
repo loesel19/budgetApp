@@ -836,20 +836,14 @@ namespace budgetApp.Controllers
         {
             if (string.IsNullOrEmpty(Request.Cookies["user"]))
             {
+                GlobalVariables.UserID = -1;
+                GlobalVariables.GlobalUsername = "";
                 return false;
             }
-            var x = validHash(Request.Cookies["user"]);
-            if (String.IsNullOrEmpty(x))
-            {
-                return false;
-            }
-            if (Request.Cookies["validSession"].Equals(x))
-            {
+            
                 return true;
-            }
-            GlobalVariables.UserID = -1;
-            GlobalVariables.GlobalUsername = "";
-            return false;
+           
+            
         }
     } 
 }
