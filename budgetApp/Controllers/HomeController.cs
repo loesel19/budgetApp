@@ -27,6 +27,28 @@ namespace budgetApp.Controllers
         {
             this.config = config;
         }
+        public bool checkSignedIn()
+        {
+            /**
+             * Name : checkSignedIn
+             * Params : none.
+             * Returns : bool - true means a user is signed in, false means no user signed in
+             * purpose : The purpose of this function is to check that a user is signed in before accessing sensitive pages.
+             *           */
+            string user;
+            try
+            {
+                user = Request.Cookies["user"].ToString();
+            } catch (Exception ex)
+            {
+                return false;
+            }
+            if (string.IsNullOrEmpty(user))
+            {
+                return false;
+            }
+            return true;
+        }
         [HttpGet]
         public IActionResult Index()
         {
@@ -47,11 +69,7 @@ namespace budgetApp.Controllers
                      * and execute our sql... hopefully. */
                     //make an instance of our database object
                     clsDatabase objDB = new clsDatabase(config.GetValue<string>("DBConnString"));
-                    if (!generateSessionCookie())
-                    {
-                        // we try to generate a session cookie, but can't so there is no cookie for the user
-                        return RedirectToAction("SignIn");
-                    }
+                    
                     //try to open the connection
                     if (!objDB.openConnection())
                     {
@@ -99,12 +117,12 @@ namespace budgetApp.Controllers
         public IActionResult Index([FromForm] EntryModel model)
         {
             /* we want to try to post the entry to our database */
-            //check to see if there is an open session for the user
-            if (!checkSession())
+            //check that a user is signed in
+            if (!checkSignedIn())
             {
-                ViewBag.Message = "No open session, please sign out and sign back in. ";
-                return View();
+                return RedirectToAction("SignIn");
             }
+            
             //first make a sql string
             if (String.IsNullOrEmpty(model.subCategory))
             {
@@ -171,10 +189,9 @@ namespace budgetApp.Controllers
         [HttpGet]
         public IActionResult Report()
         {
-            //check to see if there is an open session for the user
-            if (!checkSession())
+            //check to see that a user is signed in
+            if (!checkSignedIn())
             {
-                ViewBag.Message = "No open session, please sign out and sign back in. ";
                 return RedirectToAction("SignIn");
             }
             ReportModel model = new ReportModel();
@@ -318,6 +335,11 @@ namespace budgetApp.Controllers
         [HttpPost]
         public IActionResult Report(ReportModel model)
         {
+            //check to see that a user is signed in
+            if (!checkSignedIn())
+            {
+                return RedirectToAction("SignIn");
+            }
 
             //get the sql query string
             string strSQL = repoortSQLString(model);
@@ -423,12 +445,7 @@ namespace budgetApp.Controllers
         {
             /** This method 'signs the user out' right now we just delete the cookie that is stored in the browser,
              * eventually we will have to deal with whatever authentication method is used. */
-            //check to see if there is an open session for the user
-            if (!checkSession())
-            {
-                ViewBag.Message = "No open session, try refreshing the page or closing out the browser. ";
-                return RedirectToAction("SignIn");
-            }
+            
             GlobalVariables.GlobalUsername = null;
             GlobalVariables.UserID = -1;
             /* we will also want to 'delete' the username and session cookie */
@@ -517,12 +534,22 @@ namespace budgetApp.Controllers
         [HttpGet]
         public IActionResult AccountSettings()
         {
+            //check to see that a user is signed in
+            if (!checkSignedIn())
+            {
+                return RedirectToAction("SignIn");
+            }
             ChangePasswordModel model = new ChangePasswordModel();
             return View(model);
         }
         [HttpPost]
         public IActionResult AccountSettings(ChangePasswordModel model)
         {
+            //check to see that a user is signed in
+            if (!checkSignedIn())
+            {
+                return RedirectToAction("SignIn");
+            }
             string strSql = "Select password from users where username = '" + GlobalVariables.GlobalUsername + "';";
             string strHashPwd = validHash(model.OldPassword);
             clsDatabase objDb = new clsDatabase(config["DBConnString"]);
@@ -569,9 +596,9 @@ namespace budgetApp.Controllers
              * here we will have to encapsulate our sql commands in a npgsqlTransaction. */
             //make an instance of our db object
             //check to see if there is an open session for the user
-            if (!checkSession())
+            //check to see that a user is signed in
+            if (!checkSignedIn())
             {
-                ViewBag.Message = "No open session, please sign out and sign back in. ";
                 return false;
             }
             clsDatabase objDB = new clsDatabase(config.GetValue<string>("DBConnString"));
@@ -711,9 +738,9 @@ namespace budgetApp.Controllers
              *           against our database. If the query is sucessful we return "0" otherwise we will use one of the aforementioned error codes.
              *           */
             //check to see if there is an open session for the user
-            if (!checkSession())
+            //check to see that a user is signed in
+            if (!checkSignedIn())
             {
-                ViewBag.Message = "No open session, please sign out and sign back in. ";
                 return -1;
             }
             //check the amount given

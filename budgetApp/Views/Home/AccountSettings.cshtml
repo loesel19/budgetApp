@@ -3,7 +3,7 @@
     <link type="text/javascript" href="~/js/site.js" />
     <link type="text/css" href="~/css/site.css" />
 </head>
-<body onload="checkUserSession()">
+<body>
     <h2>@ViewBag.message</h2>
     <form asp-controller="Home" method="post" onsubmit="return checkPwdSetting()" role="form">
     <table class="table">
