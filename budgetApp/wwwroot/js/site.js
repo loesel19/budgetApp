@@ -17,7 +17,6 @@ function checkUserSession() {
         
         
         window.location = "/Home/SignIn";
-        alert("Please sign in. ")
         return false;
     }
 
