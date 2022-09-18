@@ -14,8 +14,9 @@ function checkUserSession() {
         }
     }
     if (x == null || x == "") {
-        window.location = "/Home/SignIn";
+        
         alert("Please sign in. ")
+        window.location = "/Home/SignIn";
         return false;
     }
 
