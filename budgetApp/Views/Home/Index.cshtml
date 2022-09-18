@@ -26,6 +26,7 @@
 
 @model budgetApp.Models.EntryModel
 <head>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
     <link type="text/javascript" href="~/js/site.js" />
     <link type="text/css" href="~/css/site.css" />
 </head>
@@ -56,7 +57,7 @@
                 <td scope="col">@Html.TextAreaFor(x=>x.description, new {@style = "heigth: 80px; width: 200px;", @id="txtDesc"})</td>
             </tr>
             <tr>
-                <td scope="col" class="td-right">Date other than today @Html.CheckBoxFor(x=>x.otherDate, new {@id="chkDate"})</td>
+                <td></td>
                 <td scope="col"><input type="date" name="date" id="dtpDate"/></td>
             </tr>
         </table>
@@ -72,6 +73,12 @@
 
     </body>
 <script>
+    //we want to prototype a function for the Date object so that we can get the proper time for our datepicker
+        Date.prototype.toDateInputValue = (function() {
+        var local = new Date(this);
+        local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+        return local.toJSON().slice(0, 10);
+        });
 //make sure that all required fields have a value before sending them back
     
     function checkFields(){
@@ -94,4 +101,7 @@
         }
         return true;
     }
+    $(document).ready( function () {
+        $('#dtpDate').val(new Date().toDateInputValue());
+    });
 </script>

@@ -114,17 +114,11 @@ namespace budgetApp.Controllers
             {
                 model.description = "";
             }
-            //since the user will be able to choose if they want to use a date that is not today we need to check for that
-            /* make a variable for date, do it as a datetime value since that is the type we use in our model */
-            DateTime insertDate = DateTime.Now;
-            //we set it to now first, if user wants another date we change it
-            if (model.otherDate)
-            {
-                insertDate = model.date;
-            }
+            //create our sql command
+            
             string sqlCommand = String.Format("INSERT INTO entrys (amount, category, subcategory, description, userID, createdtime) values({0}, {1}, {4}, {2}, {3}, {5});",
                 "'" + model.amount + "'", "'" + model.category + "'", "'" + model.description + "'", "'" + GlobalVariables.UserID + "'", "'" + model.subCategory + "'", 
-                "'" + insertDate + "'");
+                "'" + model.date + "'");
 
             //make an instance of our db class
             clsDatabase objDB = new clsDatabase(config.GetValue<string>("DBConnString"));
@@ -186,21 +180,33 @@ namespace budgetApp.Controllers
             ReportModel model = new ReportModel();
             return View(model);
         }
-        [HttpPost]
-        public IActionResult Report(ReportModel model)
+        private string repoortSQLString(ReportModel model)
         {
-
-            /* we need to make a report, lets do it as a table to make it look nice. We will want to use a string builder 
-             * and a couple switch statements since there are a lot of differenct reports we can generate. */
+            /**
+             * Name : reportSQLString
+             * Params : model - a model with data pertaining to the report
+             * Returns : a string that will be built based off of the data in model.
+             * Purpose : the purpose of this method is to create a sql query for the report that the user requests to see.
+             *           */
             StringBuilder sbSQL = new StringBuilder("SELECT * From entrys WHERE userID = '" + GlobalVariables.UserID + "'");
-            switch (model.category)
+            if (model.searchWithText)
             {
-                case "All":
 
-                    break;
-                default:
-                    sbSQL.Append(" AND Category = '" + model.category + "'");
-                    break;
+                /* we want to search with the textbox, so we should try and match the search string with subcategory and description */
+                sbSQL.Append(" AND (subcategory LIKE '%" + model.strSearch + "%' OR description LIKE '%" + model.strSearch + "%')");
+            }
+            else
+            {
+                /* searching by the time and category user provided */
+                switch (model.category)
+                {
+                    case "All":
+
+                        break;
+                    default:
+                        sbSQL.Append(" AND Category = '" + model.category + "'");
+                        break;
+                }
             }
             switch (model.period)
             {
@@ -214,52 +220,41 @@ namespace budgetApp.Controllers
                     break;
             }
             sbSQL.Append(" ORDER BY CreatedTime DESC;");
-            //make an instance of our db class.
-            clsDatabase objDB = new clsDatabase(config.GetValue<string>("DBConnString"));
-            //see if we can open the connection
-            if (!objDB.openConnection())
-            {
-                //rats. notify the user that something went wrong opening the connection through a GUI message.
-                ViewBag.Message = "Unable to open Database connection.";
-                objDB.Dispose(); //cleanup the DB object so that no funny business happens if a new one is made.
-                //return the view
-                return View();
-            }
-            //create a data reader based off the query we built.
-            NpgsqlDataReader sdr = objDB.ExecuteDataReader(sbSQL.ToString());
+            return sbSQL.ToString();
+
+        }
+        private Tuple<string, double, double> reportTbodyString(NpgsqlDataReader sdr)
+        {
+            
             /* lets start building our table. We will do the headers last since I want to have the total spent and net toward the top. 
              * Space them nicely as well */
             StringBuilder strTbody = new StringBuilder();
             strTbody.AppendLine("   <tbody>");
             /* now we need to loop through all the results returned by our datareader, and add them as a row to the table */
-            if (sdr == null)
-            {
-                ViewBag.Msg = "Something went wrong trying to read the data";
-                model.strHTMLTable = "";
-                return View(model);
-            }
-            /* change Msg to nothing here in case something went wrong prior */
-            ViewBag.Msg = "";
+            
+
             double spent = 0;
             double income = 0;
             int count = 0; //counter for assigning ids
             while (sdr.Read())
             {
                 /* we can check the category to both set the background color, and to keep total gross and total net spending */
-                
-                if(sdr["Category"].ToString() == "Income")
+
+                if (sdr["Category"].ToString() == "Income")
                 {
                     strTbody.AppendLine("       <tr style=\"background-color:#0d6efd;\" id=\"tr" + count + "\" onclick=\"popup(" + count + ")\">");
                     try
                     {
                         income += double.Parse(sdr["Amount"].ToString());
-                    } catch { 
-                    //nothing to do if amount is null. it shouldn't happen since we validate before entering into the database
+                    }
+                    catch
+                    {
+                        //nothing to do if amount is null. it shouldn't happen since we validate before entering into the database
                     }
                 }
                 else
                 {
-                    strTbody.AppendLine("       <tr  id=\"tr" + count + "\" onclick=\"popup("+ count + ")\">");
+                    strTbody.AppendLine("       <tr id=\"tr" + count + "\" onclick=\"popup(" + count + ")\">");
                     try
                     {
                         spent += double.Parse(sdr["Amount"].ToString());
@@ -276,7 +271,7 @@ namespace budgetApp.Controllers
                 strTbody.AppendLine("           <td class=\"td-md\" id=\"sub" + count + "\">" + sdr["Subcategory"] + "</td>");
                 strTbody.AppendLine("           <td class=\"td-md\" id=\"des" + count + "\">" + sdr["Description"] + "</td>");
                 strTbody.AppendLine("           <td class=\"td-md\" id=\"crt" + count + "\">" + sdr["Createdtime"] + "</td>");
-                strTbody.AppendLine("           <td class=\"td-md\" id=\"colEdit" + count + "\" style=\"display: none;\"><input type=\"button\" class=\"btn btn-warning btn-sm btn-row\" onclick=\"editEntry(event, "+ count +")\" id=\"edt" + count + "\"/>" +
+                strTbody.AppendLine("           <td class=\"td-md\" id=\"colEdit" + count + "\" style=\"display: none;\"><input type=\"button\" class=\"btn btn-warning btn-sm btn-row\" onclick=\"editEntry(event, " + count + ")\" id=\"edt" + count + "\"/>" +
                     " &nbsp <input type=\"button\" class=\"btn btn-danger btn-sm btn-row\" onclick=\"deleteEntry(event, this.id)\" id=\"del" + count + "\"/>");
                 strTbody.AppendLine("   </tr>");
                 //increment counter
@@ -286,15 +281,26 @@ namespace budgetApp.Controllers
             strTbody.AppendLine("</tbody>");
             //dont forget to close the table tag
             strTbody.AppendLine("</table>");
+            return new Tuple<string, double, double>(strTbody.ToString(), spent, income);
+        }
+        private string reportTableString(Tuple<string, double, double> tup)
+        {
+            /**
+             * Name : reportTableString
+             * Params : tup - a tuple containing the table body html string, the spent total and the income total
+             * Returns : a string containing the html string for the full report table we are generating.
+             * Purpose : the purpose of this method is to generate the full report table. We first create the table head
+             *           and then append the head and body and return that string.
+             *           */
             //now we do the table head since we can put the total spent and net in our headers
             StringBuilder strThead = new StringBuilder("<table class=\"table table-hover\" id=\"reportTable\" style=\"table-layout: fixed;\">");
             strThead.AppendLine("   <thead>");
             strThead.AppendLine("       <tr>");
             strThead.AppendLine("           <th class=\"th-md\">Spent</th>");
-            
-            strThead.AppendLine("           <td>" + spent.ToString("C", CultureInfo.CurrentCulture) + "</td>"); 
+
+            strThead.AppendLine("           <td>" + tup.Item2.ToString("C", CultureInfo.CurrentCulture) + "</td>");
             strThead.AppendLine("           <th class=\"th-md\">Total net</th>");
-            strThead.AppendLine("           <td>" + (income - spent).ToString("C", CultureInfo.CurrentCulture) + "</td>");
+            strThead.AppendLine("           <td>" + (tup.Item3 - tup.Item2).ToString("C", CultureInfo.CurrentCulture) + "</td>");
             strThead.AppendLine("       </tr>");
             strThead.AppendLine("       <tr>");
             strThead.AppendLine("           <th class=\"th-md\" hidden>entryID</th>");
@@ -307,7 +313,40 @@ namespace budgetApp.Controllers
             strThead.AppendLine("       </tr>");
             strThead.AppendLine("   </thead>");
             strThead.AppendLine();
-            model.strHTMLTable = strThead.ToString() + strTbody.ToString();
+            return strThead.ToString() + tup.Item1.ToString();
+        }
+        [HttpPost]
+        public IActionResult Report(ReportModel model)
+        {
+
+            //get the sql query string
+            string strSQL = repoortSQLString(model);
+            
+            //make an instance of our db class.
+            clsDatabase objDB = new clsDatabase(config.GetValue<string>("DBConnString"));
+            //see if we can open the connection
+            if (!objDB.openConnection())
+            {
+                //rats. notify the user that something went wrong opening the connection through a GUI message.
+                ViewBag.Message = "Unable to open Database connection.";
+                objDB.Dispose(); //cleanup the DB object so that no funny business happens if a new one is made.
+                //return the view
+                return View();
+            }
+            /* change Msg to nothing here in case something went wrong prior */
+            ViewBag.Msg = "";
+            //create a data reader based off the query we built.
+            NpgsqlDataReader sdr = objDB.ExecuteDataReader(strSQL);
+
+            if (sdr == null)
+            {
+                ViewBag.Msg = "Something went wrong trying to read the data";
+                model.strHTMLTable = "";
+                return View(model);
+            }
+            //generate the html for the table body, along with our total income and spent for this report
+            Tuple<string, double, double> tup = reportTbodyString(sdr);
+            model.strHTMLTable = reportTableString(tup);
             //clean up loose ends with the datareader, connection and lastly the object.
             sdr.Close();
             objDB.closeConnection();
@@ -387,8 +426,8 @@ namespace budgetApp.Controllers
             //check to see if there is an open session for the user
             if (!checkSession())
             {
-                ViewBag.Message = "No open session, please sign out and sign back in. ";
-                return View();
+                ViewBag.Message = "No open session, try refreshing the page or closing out the browser. ";
+                return RedirectToAction("SignIn");
             }
             GlobalVariables.GlobalUsername = null;
             GlobalVariables.UserID = -1;
@@ -756,6 +795,8 @@ namespace budgetApp.Controllers
              *            that could mess up our database, for example if the password we try to send is x23's4 the ' will make the database think that s4 is some random
              *            garbage and will not accept any transactions with that string.
              *            */
+            //first make sure strNormal is not null or empty
+
             string strValid = "";
             
             byte[] hashPassword;
@@ -793,6 +834,10 @@ namespace budgetApp.Controllers
         }
         public bool checkSession()
         {
+            if (string.IsNullOrEmpty(Request.Cookies["user"]))
+            {
+                return false;
+            }
             var x = validHash(Request.Cookies["user"]);
             if (String.IsNullOrEmpty(x))
             {
