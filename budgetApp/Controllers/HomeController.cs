@@ -175,7 +175,7 @@ namespace budgetApp.Controllers
             if (!checkSession())
             {
                 ViewBag.Message = "No open session, please sign out and sign back in. ";
-                return View();
+                return RedirectToAction("SignIn");
             }
             ReportModel model = new ReportModel();
             return View(model);
