@@ -25,6 +25,24 @@ function checkUserNotSignedIn() {
 
   
 }
+function checkUserSession() {
+    var x;
+    var arr = document.cookie.split(';');
+    for (var i = 0; i < arr.length; i++) {
+        var temp = arr[i].split("=");
+        if (temp[0] == "user") {
+            x = temp[1];
+            break;
+        }
+    }
+    if (x == null || x == "") {
+
+
+        window.location = "/Home/SignIn";
+    }
+
+}
+
 function generateUserCookie(username, boo) {
     if (boo) {
         const d = new Date();
