@@ -92,17 +92,11 @@
             alert("Must select a category.");
             return false;
         }
-        if(document.getElementById("chkDate").checked){
-            //if they checked the other date radio button we need to make sure they chose a date
-            if(document.getElementById("dtpDate").value == null || document.getElementById("dtpDate").value == ""){
-                alert("If you wish to change the date you must select one from the datepicker.");
-                return false;
-            }
-        }
+        
         return true;
     }
     $(document).ready( function () {
         $('#dtpDate').val(new Date().toDateInputValue());
     });
-}
+
 </script>
