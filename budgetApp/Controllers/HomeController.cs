@@ -830,6 +830,15 @@ namespace budgetApp.Controllers
            
             
         }
+        public string getUsername()
+        {
+            string username = Request.Cookies["user"];
+            if (String.IsNullOrEmpty(username))
+            {
+                return "";
+            }
+            return username;
+        }
         private GlobalVariables GetGlobalVariables(string username) {
             /**
              * Name : GetGlobalVariables
