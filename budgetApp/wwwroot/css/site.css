@@ -2,13 +2,21 @@ html {
   font-size: 14px;
   margin: 0;
 }
-
+@media (min-width : 1000px){
+    
+}
 @media (min-width: 768px) {
   html {
     font-size: 16px;
   }
+    
 }
-
+@media (min-width: 480px){
+    html{
+        font-size: 12px;
+    }
+    
+}
 html {
   position: relative;
   min-height: 100%;
