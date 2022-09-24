@@ -23,8 +23,10 @@ namespace budgetApp.Controllers
     {
         //add our config
         private readonly IConfiguration config;
+        
         public HomeController(IConfiguration config)
         {
+            
             this.config = config;
         }
         public bool checkSignedIn()
@@ -39,6 +41,7 @@ namespace budgetApp.Controllers
             try
             {
                 user = Request.Cookies["user"].ToString();
+
             } catch (Exception ex)
             {
                 return false;
@@ -47,6 +50,7 @@ namespace budgetApp.Controllers
             {
                 return false;
             }
+            
             return true;
         }
         [HttpGet]
@@ -54,63 +58,12 @@ namespace budgetApp.Controllers
         {
             /* This is the HTTPGet method for our index page. The way I implemented this
             /* check if the username is populated to ensure that user is signed in */
-            if (String.IsNullOrEmpty(GlobalVariables.GlobalUsername))
+            GlobalVariables globalVariables = GetGlobalVariables(Request.Cookies["user"]);
+            if(globalVariables == null)
             {
-                try
-                {
-                    string username = Request.Cookies["user"].ToString();
-                    /* user was previously signed in and wanted to be remembered, so we can sign them back in */
-                    GlobalVariables.GlobalUsername = username;
-                    /* we also want to get the userID for this user from the pgsql table. */
-                    string strSQL = "SELECT * FROM users Where Username = '" + username + "';";
-                    /******* since we use postgres sql here we have to have an air of caution around our transactions. Postgres
-                     * can be fussy about what transactions it allows, so for some instances (like deletion) we will need to encapsulate those
-                     * transactions with a npgsqlTransaction object. For reading and inserting it will be fine to just make an instance of our database class
-                     * and execute our sql... hopefully. */
-                    //make an instance of our database object
-                    clsDatabase objDB = new clsDatabase(config.GetValue<string>("DBConnString"));
-                    
-                    //try to open the connection
-                    if (!objDB.openConnection())
-                    {
-                        //connection failed. here we should throw an exception since we let down the user this early no point in trying to front about it
-                        objDB.Dispose(); //dispose of our disappointment of an object in case the user is gracious enough to give the application another try
-                        throw new NpgsqlException("connection with database failed");
-                    }
-                    NpgsqlDataReader reader = objDB.ExecuteDataReader(strSQL);
-                    try
-                    {
-                        if (reader.Read())
-                        {
-                            GlobalVariables.UserID = int.Parse(reader["Userid"].ToString());
-                        }
-                    } catch (Exception ex)
-                    {
-                        //note we did not check if reader was null, that will be caught here
-                        //we want to close any open objects like the reader and connection
-                        reader.Close();
-                        objDB.closeConnection();
-                        //now we can dispose of objDB as well
-                        objDB.Dispose();
-                        return RedirectToAction("SignIn");
-                    }
-                    //clean up objects and dispose of objDB
-                    reader.Close();
-                    objDB.closeConnection();
-                    objDB.Dispose();
-                    return View();
-                }catch(Exception ex)
-                {
-                    /* no user signed in so we want to redirect user to signin page*/
-                    return RedirectToAction("SignIn");
-                }
-                
+                return RedirectToAction("SignIn");
             }
-            else
-            {
-                /* user is signed in so we will return the index page */
                 return View();
-            }
         }
 
         [HttpPost]
@@ -132,10 +85,16 @@ namespace budgetApp.Controllers
             {
                 model.description = "";
             }
+            //need to get our user variables
+            GlobalVariables globalVariables = GetGlobalVariables(Request.Cookies["user"].ToString());
+            if(globalVariables == null)
+            {
+                return RedirectToAction("SignIn");
+            }
             //create our sql command
             
             string sqlCommand = String.Format("INSERT INTO entrys (amount, category, subcategory, description, userID, createdtime) values({0}, {1}, {4}, {2}, {3}, {5});",
-                "'" + model.amount + "'", "'" + model.category + "'", "'" + model.description + "'", "'" + GlobalVariables.UserID + "'", "'" + model.subCategory + "'", 
+                "'" + model.amount + "'", "'" + model.category + "'", "'" + model.description + "'", "'" + globalVariables.getUserID() + "'", "'" + model.subCategory + "'", 
                 "'" + model.date + "'");
 
             //make an instance of our db class
@@ -180,8 +139,12 @@ namespace budgetApp.Controllers
         {
             /* if global user name value is not populated we return the signing page
              * otherwise we redirect to the index page. */
-           
-            if(String.IsNullOrEmpty(GlobalVariables.GlobalUsername))
+            GlobalVariables globalVariables = GetGlobalVariables(Request.Cookies["user"]);
+            if(globalVariables == null)
+            {
+                return View();
+            }
+            if(String.IsNullOrEmpty(globalVariables.getGlobalUsername()))
                 return View();
             else
                 return RedirectToAction("Index");
@@ -205,7 +168,12 @@ namespace budgetApp.Controllers
              * Returns : a string that will be built based off of the data in model.
              * Purpose : the purpose of this method is to create a sql query for the report that the user requests to see.
              *           */
-            StringBuilder sbSQL = new StringBuilder("SELECT * From entrys WHERE userID = '" + GlobalVariables.UserID + "'");
+            GlobalVariables globalVariables = GetGlobalVariables(Request.Cookies["user"]);
+            if(globalVariables == null)
+            {
+                return null;
+            }
+            StringBuilder sbSQL = new StringBuilder("SELECT * From entrys WHERE userID = '" + globalVariables.getUserID() + "'");
             if (model.searchWithText)
             {
 
@@ -397,23 +365,6 @@ namespace budgetApp.Controllers
             {
                 if (reader.Read())
                 {
-                    //correct signin credentials
-                    try
-                    {
-                        GlobalVariables.GlobalUsername = model.username;
-                        GlobalVariables.UserID = int.Parse(reader["userID"].ToString());
-                    }
-                    catch (Exception ex)
-                    {
-                        //something wrong with the data
-                        ViewBag.Msg = "Account error.";
-                        //close the loose connection and reader
-                        reader.Close();
-                        objDB.closeConnection();
-                        //dispose of the objDB instance
-                        objDB.Dispose();
-                        return View();
-                    }
                     //before we serve the webpage we need to close our reader, connection, and dispose of the objDB instance
                     reader.Close();
                     objDB.closeConnection();
@@ -446,8 +397,6 @@ namespace budgetApp.Controllers
             /** This method 'signs the user out' right now we just delete the cookie that is stored in the browser,
              * eventually we will have to deal with whatever authentication method is used. */
             
-            GlobalVariables.GlobalUsername = null;
-            GlobalVariables.UserID = -1;
             /* we will also want to 'delete' the username and session cookie */
             try
             {
@@ -539,7 +488,13 @@ namespace budgetApp.Controllers
             {
                 return RedirectToAction("SignIn");
             }
+            GlobalVariables globalVariables = GetGlobalVariables(Request.Cookies["user"]);
+            if (globalVariables == null)
+            {
+                return RedirectToAction("SignIn");
+            }
             ChangePasswordModel model = new ChangePasswordModel();
+            model.username = globalVariables.getGlobalUsername();
             return View(model);
         }
         [HttpPost]
@@ -550,7 +505,12 @@ namespace budgetApp.Controllers
             {
                 return RedirectToAction("SignIn");
             }
-            string strSql = "Select password from users where username = '" + GlobalVariables.GlobalUsername + "';";
+            GlobalVariables globalVariables = GetGlobalVariables(Request.Cookies["user"]);
+            if(globalVariables == null)
+            {
+                return RedirectToAction("SignIn");
+            }
+            string strSql = "Select password from users where username = '" + globalVariables.getGlobalUsername() + "';";
             string strHashPwd = validHash(model.OldPassword);
             clsDatabase objDb = new clsDatabase(config["DBConnString"]);
             if (!objDb.openConnection())
@@ -863,14 +823,46 @@ namespace budgetApp.Controllers
         {
             if (string.IsNullOrEmpty(Request.Cookies["user"]))
             {
-                GlobalVariables.UserID = -1;
-                GlobalVariables.GlobalUsername = "";
                 return false;
             }
             
                 return true;
            
             
+        }
+        private GlobalVariables GetGlobalVariables(string username) {
+            /**
+             * Name : GetGlobalVariables
+             * Params : username - the username of the user we want to get the id for
+             * Returns : GlobalVariables - an object containing the userID and the username.
+             * Purpose : The purpose of this method is to mainly get the userID for the signed in user to use for sql statements.
+             *           */
+        GlobalVariables globalVariables = new GlobalVariables();
+            globalVariables.setGlobalUsername(username);
+            clsDatabase objDB = new clsDatabase(config.GetValue<string>("DBConnString"));
+            if (!objDB.openConnection())
+            {
+                return null;
+            }
+            String strSQL = "SELECT * FROM users WHERE username = '" + username + "';";
+            NpgsqlDataReader sdr = objDB.ExecuteDataReader(strSQL);
+            if (sdr == null)
+            {
+                return null;
+            }
+            try
+            {
+                sdr.Read();
+                globalVariables.setGlobalUsername(username);
+                globalVariables.setUserID(int.Parse(sdr["userID"].ToString()));
+            }catch (Exception ex)
+            {
+                return null;
+            }
+            //close open db stuff
+            objDB.closeConnection();
+            objDB.Dispose();
+            return globalVariables;
         }
     } 
 }

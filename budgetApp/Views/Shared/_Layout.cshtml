@@ -7,8 +7,9 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/budgetApp.styles.css" asp-append-version="true" />
+    <script src=~/js/site.js></script>
 </head>
-<body>
+<body onload="loadScript()">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3" style="margin-top: 0;">
             <div class="container-fluid" style="background-color: #0d6efd;">
@@ -32,7 +33,7 @@
                     
                     <ul class="navbar-nav flex-grow-1">
                         <li class="navbar-brand">
-                            Hello @GlobalVariables.GlobalUsername 
+                            <label id="lblUser"></label>
                         </li>
                     </ul>
                     <ul class="navbar-nav flex-grow-1">
@@ -62,3 +63,9 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+<script>
+function loadScript(){
+    var username = getUsername();
+    document.getElementById("lblUser").innerText = "Hello " + username;
+}
+</script>

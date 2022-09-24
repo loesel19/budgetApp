@@ -2,8 +2,24 @@
 {
     public class GlobalVariables
     {
-        public static string GlobalUsername { get; set; }
-        public static int UserID { get; set; }
-
+        private string GlobalUsername;
+        private int UserID;
+        public string getGlobalUsername()
+        {
+            return this.GlobalUsername;
+        }
+        public void setGlobalUsername(string GlobalUsername)
+        {
+            this.GlobalUsername = GlobalUsername;
+        }
+        public int getUserID()
+        {
+            return this.UserID;
+        }
+        public void setUserID(int UserID)
+        {
+            this.UserID = UserID;
+        }
     }
+    
 }
