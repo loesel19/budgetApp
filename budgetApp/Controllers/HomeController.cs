@@ -178,7 +178,7 @@ namespace budgetApp.Controllers
             {
 
                 /* we want to search with the textbox, so we should try and match the search string with subcategory and description */
-                sbSQL.Append(" AND (subcategory LIKE '%" + model.strSearch + "%' OR description LIKE '%" + model.strSearch + "%')");
+                sbSQL.Append(" AND (LOWER(subcategory) LIKE LOWER('%" + model.strSearch + "%') OR LOWER(description) LIKE LOWER('%" + model.strSearch + "%'))");
             }
             else
             {
@@ -347,7 +347,7 @@ namespace budgetApp.Controllers
         public IActionResult SignIn(UserModel model)
         {
            
-            string strSQL = "SELECT userID, username FROM users WHERE username = '" + model.username + "' AND password = '" + validHash(model.password) + "';";
+            string strSQL = "SELECT userID, username FROM users WHERE LOWER(username) = LOWER('" + model.username + "') AND password = '" + validHash(model.password) + "';";
             //make an instance of our db class.
             clsDatabase objDB = new clsDatabase(config.GetValue<string>("DBConnString"));
             //try to open the connection
