@@ -20,6 +20,10 @@ namespace budgetApp
              * do this in a default constructor is because we grab that conn string from the config, which can only be
              * accessed in the controller. */
             _connection = new NpgsqlConnection(strConn);
+            //create a new thread and set it's threadstart to connectionTimeout method
+            Thread thread = new Thread(new ThreadStart(connectionTimeout));
+            //don't forget to start the thread
+            thread.Start();
         }
         public bool openConnection()
         {
@@ -108,6 +112,29 @@ namespace budgetApp
             }catch(Exception ex)
             {
                 return null;
+            }
+        }
+        private void connectionTimeout()
+        {
+            /**
+             * Name: connectionTimout
+             * Params: None
+             * Returns: None
+             * Purpose: This method will be called when a new instance of this clsDatabase class is created. The method will wait
+             *          two minutes before it closes the connection to the database. This method is used as an insurance policy that
+             *          database connections will not be hung forever if a user closes the application during the use of some database
+             *          functionality. The heroku Postgres SQL rescource only allows 20 connection at a time and I added this functionality
+             *          in because after about 2 months of just me using the application I ran into the issue that there were 20 hanging connections
+             *          and could not use the application until I restarted it.
+             *          */
+            
+            Thread.Sleep(120000);
+            //now before trying to close the connection we must ensure that it is still open.
+            //some mutual exclusion technique like mutex locks or semaphores may need to be added in here
+            if (_connected && _connection != null)
+            {
+                _connection.Close();
+                _connected = false;
             }
         }
     }
