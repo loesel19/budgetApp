@@ -58,8 +58,21 @@
                 <td scope="col">@Html.TextAreaFor(x=>x.description, new {@style = "heigth: 80px; width: 200px;", @id="txtDesc"})</td>
             </tr>
             <tr>
-                <td></td>
+                <td scope="col" class="td-right">Date</td>
                 <td scope="col"><input type="date" name="date" id="dtpDate"/></td>
+            </tr>
+            <tr>
+                <td scope="col" class="td-right">Make Recurring</td>
+                <td scope="col"><input type="checkbox" id="chkRecurring"/></td>
+            </tr>
+            <tr class="tr-recurring" style="visibility:hidden">
+                <td scope="col" class="td-right">Frequency</td>
+                <td scope="col"><select>
+                    <option value="0">Weekly</option>
+                    <option value="1">Monthly</option>
+                    <option value="2">Yearly</option>
+                    <option value="3">Every X Weeks or Months</option>
+                </select></td>
             </tr>
         </table>
         <div style="text-align: center;">
@@ -96,6 +109,13 @@
         
         return true;
     }
+    //function to display visibility for table rows of recurring entry fields
+    document.getElementById("chkRecurring").onchange => ({
+        var chk = document.getElementById("chkRecurring");
+        if(chk.checked){
+            alert("hi")
+        }
+    });
     $(document).ready( function () {
         $('#dtpDate').val(new Date().toDateInputValue());
     });
