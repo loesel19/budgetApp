@@ -121,7 +121,7 @@ namespace budgetApp.Controllers
             //now cleanup open connection and dispose of our database object
             objDB.closeConnection();
             objDB.Dispose();
-            return View();
+            return RedirectToAction("Index");
         }
 
         public IActionResult Privacy()

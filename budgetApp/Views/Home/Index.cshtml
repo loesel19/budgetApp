@@ -76,7 +76,7 @@
             </tr>
         </table>
         <div style="text-align: center;">
-            <button type="submit" class="btn btn-outline-primary btn-lg" style="align-content: center;">Submit</button>
+            <button id="btnSubmit" type="submit" class="btn btn-outline-primary btn-lg" style="align-content: center;">Submit</button>
         </div>
         
     </div>
@@ -96,7 +96,6 @@
 //make sure that all required fields have a value before sending them back
     
     function checkFields(){
-        
         if(document.getElementById("txtAmt").value <= 0){
             alert("Must enter an amount.");
             return false;
@@ -106,16 +105,11 @@
             alert("Must select a category.");
             return false;
         }
-        
+        document.getElementById("btnSubmit").disabled = true;
         return true;
     }
     //function to display visibility for table rows of recurring entry fields
-    document.getElementById("chkRecurring").onchange => ({
-        var chk = document.getElementById("chkRecurring");
-        if(chk.checked){
-            alert("hi")
-        }
-    });
+   
     $(document).ready( function () {
         $('#dtpDate').val(new Date().toDateInputValue());
     });
