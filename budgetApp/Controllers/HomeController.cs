@@ -103,7 +103,7 @@ namespace budgetApp.Controllers
             if (!objDB.openConnection())
             {
                 //send a message to the GUI, and dispose of the dud object
-                ViewBag.Message = "Could not open database connection.";
+                TempData["msg"] = "Could not open database connection.";
                 objDB.Dispose();
                 return View();
             }
@@ -111,11 +111,11 @@ namespace budgetApp.Controllers
             if (objDB.ExecuteSQLNonQuery(sqlCommand))
             {
                 /* we were able to add the entry to our database */
-                ViewBag.Message = "Successfully added entry.";
+                TempData["msg"] = "Successfully added entry '$" + model.amount + "', '" + model.category + "'";
             }
             else
             {
-                ViewBag.Message = "Something went wrong, entry not posted.";
+                TempData["msg"] = "Something went wrong, entry not posted.";
 
             }
             //now cleanup open connection and dispose of our database object

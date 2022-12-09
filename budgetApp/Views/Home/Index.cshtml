@@ -33,7 +33,7 @@
 </head>
 <body>
 <div class="text-center">
-    <h1 class="display-4">@ViewBag.Message</h1>
+    <h1 class="display-4" id="lblMsg">@TempData["msg"]</h1>
 </div>
 
 
@@ -111,7 +111,18 @@
     //function to display visibility for table rows of recurring entry fields
    
     $(document).ready( function () {
+        //set the datepicker value to today
         $('#dtpDate').val(new Date().toDateInputValue());
-    });
+        //set a timer to reset the message after time/1000 seconds
+        function labelTimer(){
+            var t = setTimeout(resetLabel, 15000);
 
+            function resetLabel(){
+                document.getElementById("lblMsg").innerText = "";
+            }
+        }
+        //call the timer function
+        labelTimer();
+    });
+    
 </script>

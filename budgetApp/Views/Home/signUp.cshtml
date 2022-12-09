@@ -9,7 +9,7 @@
 <form asp-controller="Home" method="post" id="signUpForm" role="form" onsubmit="return checkFields()">
     <p>username</p> @Html.TextBoxFor(x=> x.username, new {@id = "txtUsername"})
     <p>password</p> @Html.TextBoxFor(x=> x.password, new {@id = "txtPassword"})
-    <button type="submit" class="btn btn-outline-secondary">Sign Up</button>
+    <button type="submit" id="btnSubmit" class="btn btn-outline-secondary">Sign Up</button>
 </form>
 <h3>Note: I reccomend not using other accounts username/password, this site is not super secure!</h3>
 </body>
@@ -17,7 +17,8 @@
     function checkFields(){
         if(document.getElementById("txtUsername").value.length > 2){
             if(document.getElementById("txtPassword").value.length > 7){
-                alert("all good")
+                //disable the submit button so that the orm cannot be submitted twice
+                document.getElementById("btnSubmit").disabled = true;
                 return true;
             }else{
                 alert("Password must be at least 8 characters long.")
