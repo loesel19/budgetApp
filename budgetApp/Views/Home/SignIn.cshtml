@@ -28,7 +28,7 @@
                 <p>Stay Signed in <input type="checkbox" id="chkRemember" /></p>
             </td>
             <td>
-                <button type="button" onclick="preSubmitCheck()" class="btn btn-outline-success btn-lg">Sign In</button>
+                <button type="button" id="btnSubmit" onclick="preSubmitCheck()" class="btn btn-outline-success btn-lg">Sign In</button>
             </td>
         </tr>
         </table>
@@ -63,6 +63,7 @@ function preSubmitCheck(){
         }
         
         //submit the form
+        document.getElementById("btnSubmit").disabled = true;
         document.getElementById("signUpForm").submit();
         return true;
     }else{
