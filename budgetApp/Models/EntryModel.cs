@@ -7,5 +7,6 @@
         public decimal amount { get; set; }
         public string description { get; set; }
         public DateTime date { get; set; }
+        public int recurringX { get; set; }
     }
 }

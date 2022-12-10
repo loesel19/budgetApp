@@ -61,21 +61,31 @@
                 <td scope="col" class="td-right">Date</td>
                 <td scope="col"><input type="date" name="date" id="dtpDate"/></td>
             </tr>
-            <!-- //TODO: implement recurring investment functionality.
+            
             <tr>
                 <td scope="col" class="td-right">Make Recurring</td>
                 <td scope="col"><input type="checkbox" id="chkRecurring"/></td>
             </tr>
-            <tr class="tr-recurring" style="visibility:hidden">
+            <tr id="rowRecurring" style="display:none;">
                 <td scope="col" class="td-right">Frequency</td>
-                <td scope="col"><select>
-                    <option value="0">Weekly</option>
-                    <option value="1">Monthly</option>
-                    <option value="2">Yearly</option>
-                    <option value="3">Every X Weeks or Months</option>
+                <td scope="col"><select id="ddlRecurring">
+                    <option value=0>Weekly</option>
+                    <option value=1>Monthly</option>
+                    <option value=2>Yearly</option>
+                    <option value=3>Every X Weeks or Months</option>
                 </select></td>
+            </tr> 
+            <tr id="rowX" style="display:none;">
+                <td scope="col" class="td-right">
+                    X : @Html.TextBoxFor(x=>x.recurringX, new {@style = "width: 100px;",@id="txtX", @type="number", @min="1",@step="1", @value=2})
+                </td>
+                <td scope="col">
+                    <select id="ddlWeekMonth">
+                        <option value=0>Week(s)</option>
+                        <option value=1>Month(s)</option>
+                    </select>
+                </td>
             </tr>
-            -->
         </table>
         <div style="text-align: center;">
             <button id="btnSubmit" type="submit" class="btn btn-outline-primary btn-lg" style="align-content: center;">Submit</button>
@@ -110,8 +120,9 @@
         document.getElementById("btnSubmit").disabled = true;
         return true;
     }
-    //function to display visibility for table rows of recurring entry fields
-   
+    
+   //when this page is first loaded we set the datepicker value to todays date, and set our timer to clear out
+   //our lblMsg of any text that has been given to it from tempData
     $(document).ready( function () {
         //set the datepicker value to today
         $('#dtpDate').val(new Date().toDateInputValue());
@@ -126,5 +137,27 @@
         //call the timer function
         labelTimer();
     });
-    
+
+    //function to display visibility for table rows of recurring entry fields
+    const chkRecurring = document.getElementById("chkRecurring");
+    chkRecurring.addEventListener('change', (event) => {
+        if(event.currentTarget.checked){
+            //we want to show our recurring data row
+            document.getElementById("rowRecurring").style = "";
+        }else{
+            document.getElementById("rowRecurring").style = "display: none;";
+        }
+    });
+
+    const ddlRecurring = document.getElementById("ddlRecurring");
+    ddlRecurring.addEventListener('change', (event) => {
+        if(ddlRecurring.value == 3){
+            //display the textbox field for X and the select for weeks or months
+            document.getElementById("rowX").style = "";
+        }else{
+            //do not show rowX since the user does not have that row selected
+            document.getElementById("rowX").style = "display: none;";
+        }
+    });
+
 </script>
