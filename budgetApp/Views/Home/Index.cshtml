@@ -43,28 +43,28 @@
         <table class="table">
             <tr>
                 <td scope="col" class="td-right">Amount($)</td>
-                <td scope="col">@Html.TextBoxFor(x=>x.amount, new {@style = "width: 200px;",@id="txtAmt", @type="number", @min="0.01",@step="0.01", @value="0"})</td>
+                <td scope="col">@Html.TextBoxFor(x=>x.amount, new {@style = "width: 200px;",@id="txtAmt", @type="number", @min="0.01",@step="0.01", @value="0", @class="form-control"})</td>
             </tr>
             <tr>
                 <td scope="col" class="td-right">Category</td>
-                <td scope="col">@Html.DropDownListFor(x=>x.category, categories, new {@style = "width: 200px;", @id="ddlCat"})</td>
+                <td scope="col">@Html.DropDownListFor(x=>x.category, categories, new {@style = "width: 200px;", @id="ddlCat", @class="form-control"})</td>
             </tr>
             <tr>
                 <td scope="col" class="td-right">Sub Category(optional)</td>
-                <td scope="col">@Html.TextBoxFor(x=>x.subCategory, new {@style = "width: 200px;", @id="txtSub"})</td>
+                <td scope="col">@Html.TextBoxFor(x=>x.subCategory, new {@style = "width: 200px;", @id="txtSub", @class="form-control"})</td>
             </tr>
             <tr>
                 <td scope="col" class="td-right">Description(Optional)</td>
-                <td scope="col">@Html.TextAreaFor(x=>x.description, new {@style = "heigth: 80px; width: 200px;", @id="txtDesc"})</td>
+                <td scope="col">@Html.TextAreaFor(x=>x.description, new {@style = "heigth: 80px; width: 200px;", @id="txtDesc", @class="form-control"})</td>
             </tr>
             <tr>
                 <td scope="col" class="td-right">Date</td>
-                <td scope="col"><input type="date" name="date" id="dtpDate"/></td>
+                <td scope="col"><input type="date" name="date" id="dtpDate" class="form-control" style="width: 200px;"/></td>
             </tr>
             
             <tr>
                 <td scope="col" class="td-right">Make Recurring</td>
-                <td scope="col"><input type="checkbox" id="chkRecurring"/></td>
+                <td scope="col"><input type="checkbox" id="chkRecurring" class="form-check-input" style="width:25px; height: 25px;"/></td>
             </tr>
             <tr id="rowRecurring" style="display:none;">
                 <td scope="col" class="td-right">Frequency</td>
